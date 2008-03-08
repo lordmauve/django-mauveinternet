@@ -8,9 +8,18 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 class http_authentication(object):
-	def __init__(self, view, realm='Django'):
+	def __init__(self, view, realm='Django', log=None):
 		self.view=view
 		self.realm=realm
+		self.log = log
+
+	def write_log(self, msg):
+		if not self.log:
+			return
+
+		f = open(self.log, 'a')
+		f.write('[%s] %s'%(datetime.datetime.now(), msg))
+		f.close()
 
 	def not_authorized(self):
 		response = HttpResponse('<h1>401 Not Authorized</h1>', status=401)
