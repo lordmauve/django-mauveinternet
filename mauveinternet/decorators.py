@@ -65,3 +65,16 @@ class http_authentication(object):
 		return self.__dict__['view'](request, *args, **kwargs)
 
 
+def not_cacheable(view):
+	def _force_no_caching(*args, **kwargs):
+		response = view(*args, **kwargs)
+		response['Pragma'] = 'no-cache'
+		response['Cache-Control'] = 'no-cache, no-store'
+		return response
+	
+	try:
+		import functools
+	except ImportError:
+		return _force_no_caching
+	else:
+		return functools.update_wrapper(_force_no_caching, view)
