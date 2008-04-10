@@ -6,11 +6,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from findaholidaylet.properties import template
 
-from findaholidaylet.ordering.models import Order, OrderStatusChange
-from findaholidaylet.ordering.forms import *
-from findaholidaylet.ordering.card import *
-from findaholidaylet.ordering.lockbox import *
-from findaholidaylet.ordering.basket import get_basket, clear_basket, get_basket_if_exists
+from mauveinternet.ordering.models import Order, OrderStatusChange
+from mauveinternet.ordering.forms import *
+from mauveinternet.ordering.card import *
+from mauveinternet.ordering.lockbox import *
+from mauveinternet.ordering.basket import get_basket, clear_basket, get_basket_if_exists
 
 def basket(request):
 	if request.method == 'POST':

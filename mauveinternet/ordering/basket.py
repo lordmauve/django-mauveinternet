@@ -1,4 +1,4 @@
-from findaholidaylet.ordering.order import OrderItemList
+from mauveinternet.ordering.order import OrderItemList
 
 def get_basket(request):
 	request.session.modified = True	# baskets retrieved with get_basket are typically modified

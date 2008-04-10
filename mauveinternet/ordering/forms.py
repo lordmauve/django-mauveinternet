@@ -1,7 +1,7 @@
 import django.newforms as forms
-from findaholidaylet.ordering.lockbox import Lockable
-from findaholidaylet.ordering.models import Order, STATUS_OPTIONS
-from findaholidaylet.ordering.card import is_valid_pan
+from mauveinternet.ordering.lockbox import Lockable
+from mauveinternet.ordering.models import Order, STATUS_OPTIONS
+from mauveinternet.ordering.card import is_valid_pan
 
 class CardNumberField(forms.RegexField):
 	def __init__(self, *args, **kwargs):

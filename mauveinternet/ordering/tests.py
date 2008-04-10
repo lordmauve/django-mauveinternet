@@ -1,8 +1,8 @@
 import unittest
 import base64
 
-from findaholidaylet.ordering.lockbox import *
-from findaholidaylet.ordering.card import *
+from mauveinternet.ordering.lockbox import *
+from mauveinternet.ordering.card import *
 
 __doc__= """
 >>> is_valid_pan('4111 1111 1111 1111')

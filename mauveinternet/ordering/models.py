@@ -3,10 +3,10 @@ from django.conf import settings
 
 from django.contrib.auth.models import User
 
-from findaholidaylet.ordering.picklefield import PickleField
+from mauveinternet.ordering.picklefield import PickleField
 
-from findaholidaylet.ordering.order import OrderItemList
-from findaholidaylet.ordering.lockbox import Lockable
+from mauveinternet.ordering.order import OrderItemList
+from mauveinternet.ordering.lockbox import Lockable
 
 # Create your models here.
 STATUS_OPTIONS=[
