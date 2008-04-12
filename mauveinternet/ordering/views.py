@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required, permission_required
 
-from findaholidaylet.properties import template
+from mauveinternet.shortcuts import template
 
 from mauveinternet.ordering.models import Order, OrderStatusChange
 from mauveinternet.ordering.forms import *

@@ -1,6 +1,5 @@
 {% load quantity %}
 {% load item_views %}
-<h2>Your Basket</h2>
 <form action="/basket/" method="post">
 	<input type="hidden" name="next" value="{{request.path}}" />
 	<table class="basket">

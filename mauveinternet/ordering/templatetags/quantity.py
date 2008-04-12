@@ -19,6 +19,10 @@ class QuantityNode(Node):
 		return orderitem.quantity
 
 def parse_quantity_node(parser, token):
+	"""Displays an input field for updating basket quantities if the
+	item given allows quantity to be changed; otherwise it just displays the
+	current quantity.
+	"""
         try:
                 # split_contents() knows not to split quoted strings.
                 value = token.split_contents()[1]

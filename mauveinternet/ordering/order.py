@@ -8,6 +8,13 @@ class ItemNotRepeatable(Exception):
 
 
 class OrderItem(object):
+	"""Base class for an item that can be added to a basket.
+
+	Subclass this class for an item that can be added only once to a basket.
+	To specify a view for the subclassed item, implement a method
+	item_view(self, request, ...)
+	which will be delegated to by the ordering app.
+	"""
 	def __init__(self, name):
 		self.name=name
 		self.quantity=1
