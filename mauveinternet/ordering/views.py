@@ -1,4 +1,3 @@
-# Create your views here.
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
@@ -6,7 +5,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from mauveinternet.shortcuts import template
 
-from mauveinternet.ordering.models import Order, OrderStatusChange
+from mauveinternet.ordering.models import get_order_model, OrderStatusChange
 from mauveinternet.ordering.forms import *
 from mauveinternet.ordering.card import *
 from mauveinternet.ordering.lockbox import *
@@ -38,6 +37,7 @@ def basket(request):
 			return HttpResponseRedirect(request.POST['next'])
 
 	return template(request, 'view_basket.html')
+
 
 def view_basket_item(request):
 	if 'item' not in request.GET:
@@ -99,6 +99,7 @@ def checkout(request):
 
 	return template(request, 'checkout.html', form=form)
 
+
 @login_required
 def place_order(request):
 	if request.method != 'POST':
@@ -130,17 +131,19 @@ def place_order(request):
 def orders_new(request):
 	return template(request, 'ordering/orders.html', filter='New', orders=Order.objects.filter(order_status='N'))
 
+
 @permission_required('ordering.can_view_orders')
 def orders_all(request):
 	return template(request, 'ordering/orders.html', filter='All', orders=Order.objects.all())
 
+
 @permission_required('ordering.can_view_orders')
 def view_order(request, code):
 	code=int(code)-settings.ORDER_NUMBER_BASE
-	order=get_object_or_404(Order, id=code)
+	order=get_object_or_404(get_order_model(), id=code)
 
 	if request.method == 'POST' and 'order_status' in request.POST:
-		statusform=OrderStatusForm(request.POST, instance=order)
+		statusform = OrderStatusForm(request.POST, instance=order)
 		if statusform.is_valid():
 			order.set_status(statusform.cleaned_data['order_status'], statusform.cleaned_data['message'])
 			if statusform.cleaned_data['order_status'] == 'P':
@@ -148,14 +151,15 @@ def view_order(request, code):
 				order.set_status('C', u'Order fulfilled by system.')
 			return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
 	else:
-		statusform=OrderStatusForm(instance=order)
+		statusform = OrderStatusForm(instance=order)
 
 	return template(request, 'ordering/view_order.html', order=order, statusform=statusform)
+
 
 @permission_required('ordering.can_view_orders')
 def view_order_item(request, code):
 	code=int(code)-settings.ORDER_NUMBER_BASE
-	order=get_object_or_404(Order, id=code)
+	order=get_object_or_404(get_order_model(), id=code)
 
 	if 'item' not in request.GET:
 		return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
@@ -169,6 +173,7 @@ def view_order_item(request, code):
 		return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
 
 	return item.item_view(request, order)
+
 
 def alternate_payment(request):
 	"""Displays a confirmation page for the order; if placed, redirect to information about how to pay

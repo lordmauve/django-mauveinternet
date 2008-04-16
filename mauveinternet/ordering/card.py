@@ -21,7 +21,10 @@ def is_valid_pan(pan):
 
 	return sum % 10 == 0
 
+
 class CardDate(object):
+	"""Generalised handling of credit card dates"""
+
 	def __init__(self, strmonth):
 		mo = re.match('([0-9]{2}(?:[0-9]{2})?)[^0-9a-zA-Z]([0-9]{2}(?:[0-9]{2}))', strmonth)
 		if not mo:
@@ -45,7 +48,10 @@ class CardDate(object):
 		s = s.replace('YYYY', '%04d'%self.year)
 		return s.replace('YY', '%02d'%(self.year % 100))
 
+
 class Card(object):
+	"""Encryptable object representing a Credit Card"""
+
 	def __init__(self, card_type, pan, name_on_card, cv2, expiry_date, billing_address, billing_postcode, start_date=None, issue_number=None):
 		self.card_type=card_type
 		self.sensitive_data={
@@ -138,3 +144,29 @@ class Card(object):
 			billing_address='123 test street\ntestville',
 			billing_postcode='ab12 3cd'
 		)
+
+
+import django.newforms as forms
+
+class CardNumberField(forms.RegexField):
+	"""Django newforms field for validating credit card numbers
+	using the Luhn checksum.
+
+	"""
+
+	def __init__(self, *args, **kwargs):
+		kwargs['max_length'] = 19
+		kwargs['min_length'] = 13
+		kwargs['regex'] = '^[0-9 ]*$'
+		super(CardNumberField, self).__init__(*args, **kwargs)
+		self.error_messages['invalid']=u'Please enter a valid credit card number'
+
+	def clean(self, value):
+		card_number=super(CardNumberField, self).clean(value)
+
+		if not is_valid_pan(card_number):
+			raise forms.ValidationError(self.error_messages['invalid'])
+		
+		return value
+
+

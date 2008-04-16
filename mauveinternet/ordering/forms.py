@@ -1,6 +1,6 @@
 import django.newforms as forms
 from mauveinternet.ordering.lockbox import Lockable
-from mauveinternet.ordering.models import Order, STATUS_OPTIONS
+from mauveinternet.ordering.models import get_order_model, get_status_options
 from mauveinternet.ordering.card import is_valid_pan
 
 class CardNumberField(forms.RegexField):
@@ -19,6 +19,7 @@ class CardNumberField(forms.RegexField):
 		
 		return value
 
+
 class CheckoutForm(forms.ModelForm):
 	card_type=forms.ChoiceField(choices=[(c,c) for c in ['Mastercard', 'Visa', 'Maestro', 'Solo']])
 	name_on_card=forms.CharField()
@@ -32,34 +33,32 @@ class CheckoutForm(forms.ModelForm):
 	card_cv2_number=forms.IntegerField(label=u'CV2 Number', help_text=u'This is the last group of digits on the reverse of the card, usually at the top of the signature strip.', error_messages={'invalid': u'Please enter a numeric value'})
 
 	class Meta:
-		model=Order
+		model = get_order_model()
 		fields=('billing_address', 'billing_postcode')
+
 
 class AlternatePaymentForm(forms.ModelForm):
 	class Meta:
-		model=Order
+		model = get_order_model()
 		fields=('billing_address', 'billing_postcode')
 
 
-class OrderStatusForm(forms.ModelForm):
+class OrderStatusForm(forms.Form):
 	def __init__(self, *args, **kwargs):
-		kwargs['auto_id']='st_%s'
+		kwargs['auto_id'] = 'st_%s'
 		super(OrderStatusForm, self).__init__(*args, **kwargs)
 
-	order_status = forms.ChoiceField(choices=[c for c in STATUS_OPTIONS if c[0] != 'C'])
+	order_status = forms.ChoiceField(choices=[c for c in get_status_options() if c[0] != 'C'])
 	message = forms.CharField(max_length=255, initial='Status changed by administrator')
 
-	class Meta:
-		model=Order
-		fields=('order_status',)
 
 class PassphraseForm(forms.Form):
 	def __init__(self, lockable, *args, **kwargs):
-		kwargs['auto_id']='pp_%s'
-		self.lockable=lockable
+		kwargs['auto_id'] = 'pp_%s'
+		self.lockable = lockable
 		super(PassphraseForm, self).__init__(*args, **kwargs)
 
-	passphrase=forms.CharField(widget=forms.PasswordInput)
+	passphrase = forms.CharField(widget=forms.PasswordInput)
 
 	def clean_passphrase(self):
 		value=self.cleaned_data['passphrase']

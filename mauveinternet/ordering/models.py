@@ -1,25 +1,19 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import get_model
+
+"""We now allow a pluggable Order models that might
+ look a little something like this:
+
 
 from django.contrib.auth.models import User
-
 from mauveinternet.ordering.picklefield import PickleField
-
 from mauveinternet.ordering.order import OrderItemList
 from mauveinternet.ordering.lockbox import Lockable
+from mauveinternet.ordering.orderbase import OrderBase, STATUS_OPTIONS
 
-# Create your models here.
-STATUS_OPTIONS=[
-		('N', 'New'),
-		('P', 'Paid'),
-		('C', 'Completed'), # ie. paid and fulfilled
-		('D', 'Declined'), # declined by payment gateway
-		('F', 'Failed'),  # error from payment gateway
-		('R', 'Rejected'), # manually rejected by user or administrator
-	]
-
-class Order(models.Model):
-	order_status=models.CharField(max_length=1, choices=STATUS_OPTIONS, default='N')
+class Order(models.Model, OrderBase):
+	status=models.CharField(max_length=1, choices=STATUS_OPTIONS, default='N')
 	
 	customer = models.ForeignKey(User)
 	date_placed=models.DateTimeField(auto_now_add=True)
@@ -33,25 +27,22 @@ class Order(models.Model):
 
 	total=models.DecimalField(editable=False, max_digits=10, decimal_places=2)
 
-	def order_number(self):
-		return '%05d'%(self.id+settings.ORDER_NUMBER_BASE)
+"""
 
-	def set_status(self, status, message):
-		self.orderstatuschange_set.create(previous_status=self.order_status, message=message)
-		self.order_status=status
-		self.save()
 
-	def history(self):
-		return self.orderstatuschange_set.order_by('date')
+def get_order_model():
+	return get_model(*settings.ORDER_MODEL.split('.'))
 
-	class Meta:
-		permissions = [('can_view_orders', 'Permission to view orders')]
+
+def get_status_options():
+	return get_order_model()._meta.get_field('status').choices
+
 
 class OrderStatusChange(models.Model):
-	order=models.ForeignKey(Order)
-	date=models.DateTimeField(auto_now_add=True)
-	previous_status=models.CharField(max_length=1, choices=STATUS_OPTIONS+[('-', '-')])
-	message=models.CharField(max_length=255)
+	order = models.ForeignKey(get_order_model())
+	date = models.DateTimeField(auto_now_add=True)
+	previous_status = models.CharField(max_length=1, choices=get_status_options() + [('-', '-')])
+	message = models.CharField(max_length=255)
 
 	def new_status(self):
 		try:
@@ -63,3 +54,7 @@ class OrderStatusChange(models.Model):
 		s=self.new_status()
 		disps=dict(STATUS_OPTIONS+[('-', '-')])
 		return disps[s]
+
+	class Meta:
+		# Nowhere better for this to go
+		permissions = [('can_view_orders', 'Permission to view orders')]
