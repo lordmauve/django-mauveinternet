@@ -21,7 +21,7 @@
 		</tr>
 		{% for o in orders %}
 		<tr>
-			<td><img class="icon" src="/assets/images/orderstatus_{{o.order_status}}.png" alt="" /> {{o.get_order_status_display}}</td>
+			<td><img class="icon" src="/assets/images/orderstatus_{{o.status}}.png" alt="" /> {{o.get_status_display}}</td>
 			<td>{{o.date_placed}}</td>
 			<td>{{o.order_number}}</td>
 			<td>{{o.customer}}</td>

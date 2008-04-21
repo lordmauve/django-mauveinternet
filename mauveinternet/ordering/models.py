@@ -48,11 +48,11 @@ class OrderStatusChange(models.Model):
 		try:
 			return self.order.orderstatuschange_set.filter(date__gt=self.date).order_by('date')[0].previous_status
 		except IndexError:
-			return self.order.order_status
+			return self.order.status
 
 	def get_new_status_display(self):
 		s=self.new_status()
-		disps=dict(STATUS_OPTIONS+[('-', '-')])
+		disps=dict(get_status_options()+[('-', '-')])
 		return disps[s]
 
 	class Meta:

@@ -45,7 +45,7 @@ class StackableOrderItem(OrderItem):
 class RepeatableOrderItem(OrderItem):
 	"""Repeatable order items may be added multiple times to the basket."""
 
-	def __eq__(self):
+	def __eq__(self, i):
 		return False
 
 

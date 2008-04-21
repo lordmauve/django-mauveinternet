@@ -10,6 +10,15 @@ class TemplateEmail(models.Model):
 	subject = models.CharField("Django template for generating the subject", max_length=255)
 	body = models.TextField("Django template for generating the body")
 
+	def __unicode__(self):
+		return self.slug
+
+	class Admin:
+		list_display = ['slug', 'sender', 'subject']
+
+	class Meta:
+		verbose_name = u'e-mail template'
+
 	def to_email(self, args, recipients, context=None):
 		"""Build a concrete e-mail instance addressed to the addresses in the list recipients
 		using the template variables args.

@@ -129,16 +129,19 @@ def place_order(request):
 
 @permission_required('ordering.can_view_orders')
 def orders_new(request):
-	return template(request, 'ordering/orders.html', filter='New', orders=Order.objects.filter(order_status='N'))
+	Order = get_order_model()
+	return template(request, 'ordering/orders.html', filter='New', orders=Order.objects.filter(status='N'))
 
 
 @permission_required('ordering.can_view_orders')
 def orders_all(request):
+	Order = get_order_model()
 	return template(request, 'ordering/orders.html', filter='All', orders=Order.objects.all())
 
 
 @permission_required('ordering.can_view_orders')
 def view_order(request, code):
+	Order = get_order_model()
 	code=int(code)-settings.ORDER_NUMBER_BASE
 	order=get_object_or_404(get_order_model(), id=code)
 
@@ -151,7 +154,7 @@ def view_order(request, code):
 				order.set_status('C', u'Order fulfilled by system.')
 			return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
 	else:
-		statusform = OrderStatusForm(instance=order)
+		statusform = OrderStatusForm(initial={'order_status': order.status})
 
 	return template(request, 'ordering/view_order.html', order=order, statusform=statusform)
 
