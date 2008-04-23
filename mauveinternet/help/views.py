@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
-from findaholidaylet.properties import template
-from findaholidaylet.help.models import *
+from mauveinternet.shortcuts import template
+from mauveinternet.help.models import *
 
 
 def ajax_help(request, slug):

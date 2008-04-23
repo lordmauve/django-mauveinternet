@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 from django.core.urlresolvers import reverse
 
-from findaholidaylet.help.models import *
+from mauveinternet.help.models import *
 
 register = Library()
 
