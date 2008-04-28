@@ -1,3 +1,4 @@
+from django.db import models
 WORD_SCORES = [0, 0, 0.1, 0.1, 0.2, 0.3, 0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3.2]
 
 def content_score(text):
@@ -43,22 +44,70 @@ class HasAttributeScorer(object):
 		return 0
 
 
+class CollectionLengthScorer(object):
+	def __init__(self, scores):
+		self.scores = scores
+
+	def get_score(self, inst):
+		"""Most of this implementation is concerned with
+		trying all possible routes to getting a number of
+		items to score. We accept:
+		
+		- Django Managers/QuerySets (anything with a .count() method)
+		- collections (anything with a __len__ method)
+		- zero-argument callables that return either of the above
+
+		"""
+		att = getattr(inst, self.name, None)
+		if att is None:
+			return 0
+		if isinstance(att, models.Manager):
+			c = att.count()
+		elif hasattr(att, '__len__'):
+			c = len(att)
+		elif hasattr(att, '__call__'):
+			try:
+				res = att()
+			except AttributeError:
+				return 0
+			else:
+				if isinstance(res, models.query.QuerySet):
+					c = res.count()
+				elif hasattr(res, '__len__'):
+					c = len(res)
+		else:
+			return 0
+			
+		try:
+			return self.scores[c]
+		except IndexError:
+			return self.scores[-1]
+
 class DeclarativeScoreSystem(type):
-	def __init__(cls, name, bases, dict):
+	"""Metaclass that allows an ObjectScorer subclass to have its list of
+	scorers defined in a Python class definition rather than by assigning
+	to self.scorers.
+
+	Also assigns the name attribute on scorers so they can find which
+	attribute to inspect."""
+
+	def __new__(cls, name, bases, attrs):
 		scorers = []
-		for n in dict:
-			if hasattr(n, 'get_score'):
-				s = dict[n]
+		for n in attrs:
+			s = attrs[n]
+			if hasattr(s, 'get_score'):
 				s.name = n
 				scorers.append(s)
-				del(dict[n])
-		dict['scorers'] = scorers 
-		return type.__init__(self, cls, bases, dict)
+		attrs['scorers'] = scorers 
+		return type.__new__(cls, name, bases, attrs)
 
 
 class ObjectScorer(object):
 	__metaclass__ = DeclarativeScoreSystem
 
 	def get_score(self, inst):
-		return sum([s.get_score(inst) for s in self.scorers])
+		score = sum([s.get_score(inst) for s in self.scorers])
+		return int(score + self.other_scores(inst, score) + 0.5)
 
+	def other_scores(self, inst, score):
+		return 0

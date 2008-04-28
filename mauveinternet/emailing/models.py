@@ -59,21 +59,12 @@ class TemplateEmail(models.Model):
 		provided augmented with the variable 'recipient' set for the corresponding
 		recipient."""
 
-		if context is None:
-			context = Context(args)
-		else:
-			context.update(args)
-
 		for r in recipients:
-			context.update({'recipient': r})
+			rargs = {}
+			rargs.update(args)
+			rargs['recipient'] = r
 			msg = self.to_email(rargs, [r.email], context=context)
 			msg.send()
-			context.pop()
-
-		try:
-			context.pop()
-		except ContextPopException:
-			pass
 
 	@staticmethod
 	def get(slug, sender, subject, body):
