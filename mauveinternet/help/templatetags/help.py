@@ -25,7 +25,7 @@ class InlineHelpNode(Node):
 		if created or not help.description:
 			return ''
 
-		return mark_safe(' <a class="inlinehelp" href="%s" target="inlinehelp" title="Help on this item"><img src="/assets/images/help_icon.png" alt="Help on this item" /></a>' % reverse('quick-help', kwargs={'slug': slug}))
+		return mark_safe(' <a class="inlinehelp" href="%s" target="inlinehelp" title="Help on this item"><img src="/assets/images/help_icon.png" alt="?" /></a>' % reverse('quick-help', kwargs={'slug': slug}))
 
 
 class FormHelpNode(InlineHelpNode):
