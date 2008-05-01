@@ -69,11 +69,12 @@ class ThumbnailImageField(ImageField):
 
 		im = None	#cache im in case we are generating several thumbnails
 		orig = os.path.join(settings.MEDIA_ROOT, getattr(instance, self.attname))
-		mtime = os.path.getmtime(orig)
+		omtime = os.path.getmtime(orig)
 		for name, thumbnailer in self.thumbnails.items():
 			thumb = self.thumbnail_path(name, instance)
 			try:
-				if os.path.getmtime(thumb) > mtime:
+				tmtime = os.path.getmtime(thumb)
+				if tmtime > omtime:
 					continue	#thumbnail is up-to-date
 			except OSError:
 				pass # thumbnail (probably) does not exist
@@ -88,7 +89,7 @@ class ThumbnailImageField(ImageField):
 				os.makedirs(dirn)
 
 			if thumb.endswith('.jpg'):
-				tim.save(thumb, 'JPEG', {'quality': 80})
+				tim.save(thumb, 'JPEG', quality=80)
 			else:
 				tim.save(thumb, 'PNG')
 
