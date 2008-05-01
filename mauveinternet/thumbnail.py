@@ -1,5 +1,7 @@
 import re
+import os
 import os.path
+import urllib
 
 from django.conf import settings
 
@@ -29,12 +31,12 @@ class ThumbnailImageField(ImageField):
 	
 	def contribute_to_class(self, cls, name):
 		"""Hook up events so we can access the instance."""
-		super(CustomImageField, self).contribute_to_class(cls, name)
+		super(ThumbnailImageField, self).contribute_to_class(cls, name)
 		dispatcher.connect(self._post_init, signals.post_init, sender=cls)
 		dispatcher.connect(self.rebuild_thumbnails, signals.post_save, sender=cls)
 		dispatcher.connect(self.delete_thumbnails, signals.post_delete, sender=cls)
-		for name in self.thumbnails:
-			setattr(cls, 'get_%s_thumbnail_%s_url', curry(self.thumbnail_url, name=name))
+		for tname in self.thumbnails:
+			setattr(cls, 'get_%s_%s_url' % (name, tname), curry(self.thumbnail_url, tname))
 
 	def _post_init(self, instance=None):
 		"""Get dynamic upload_to value from the model instance."""
@@ -48,13 +50,15 @@ class ThumbnailImageField(ImageField):
 	def thumbnail_filename(self, name, instance):
 		thumbnailer = self.thumbnails[name]
 		filename = getattr(instance, self.attname)
-		ext = self.negotiate_output_format(thumbnailer, filename)
+		ext = self.negotiate_output_format(thumbnailer, filename).lower()
+		if ext == 'jpeg':
+			ext = 'jpg'
 
-		filename = re.sub(r'([^/]+)\.(jpg|png)$', r'\1', filename, re.I)
+		filename = re.sub(r'.*?([^/]+)\.(jpg|png)$', r'\1', filename, re.I)
 		return '%s(%s).%s' % (name, filename, ext)
 
 	def thumbnail_url(self, name, instance):
-		return settings.MEDIA_URL + self.upload_to + self.thumbnail_filename(name, instance)
+		return settings.MEDIA_URL + urllib.quote(self.upload_to + self.thumbnail_filename(name, instance))
 
 	def thumbnail_path(self, name, instance):
 		return os.path.join(settings.MEDIA_ROOT, self.upload_to, self.thumbnail_filename(name, instance))
@@ -67,7 +71,7 @@ class ThumbnailImageField(ImageField):
 		orig = os.path.join(settings.MEDIA_ROOT, getattr(instance, self.attname))
 		mtime = os.path.getmtime(orig)
 		for name, thumbnailer in self.thumbnails.items():
-			thumb = self.thumbnail_filename(name, instance)
+			thumb = self.thumbnail_path(name, instance)
 			try:
 				if os.path.getmtime(thumb) > mtime:
 					continue	#thumbnail is up-to-date
@@ -79,17 +83,21 @@ class ThumbnailImageField(ImageField):
 				im = Image.open(orig)
 			tim = thumbnailer.thumbnail(im)
 
+			dirn = os.path.dirname(thumb)
+			if not os.path.exists(dirn):
+				os.makedirs(dirn)
+
 			if thumb.endswith('.jpg'):
-				tim.save(thumb, 'JPEG')
+				tim.save(thumb, 'JPEG', {'quality': 80})
 			else:
 				tim.save(thumb, 'PNG')
 
 	def negotiate_output_format(self, thumbnailer, input):
-		if input.lower().endswith('.png')
-			if thumbnailer.output_alpha() != Thumbnailer.FLATTEN_ALPHA:
+		if input.lower().endswith('.png'):
+			if thumbnailer.output_alpha() != Thumbnail.FLATTEN_ALPHA:
 				return 'PNG'
 		else:
-			if thumbnailer.output_alpha() != Thumbnailer.CREATE_ALPHA:
+			if thumbnailer.output_alpha() == Thumbnail.CREATE_ALPHA:
 				return 'PNG'
 		return 'JPEG'
 
@@ -105,10 +113,10 @@ class ThumbnailImageField(ImageField):
 		return 'varchar(100)'
 
 
-class Thumbnailer(object):
+class Thumbnail(object):
 	"""The default thumbnailer, and the base class of other thumbnailers.
 	
-	Thumbnailers handle the generation, but not the file handling, of the
+	Each Thumbnail handles the generation, but not the file handling, of the
 	thumbnails for a ThumbnailImageField.
 
 	The class attribute output_format specifies whether the thumbnailer generates
@@ -116,7 +124,7 @@ class Thumbnailer(object):
 	PNGs.
 	"""
 
-	def __init__(self, w=None, h=None)
+	def __init__(self, w=None, h=None):
 		if w is None:
 			w = 32768	#Infinity!
 		if h is None:
@@ -134,30 +142,32 @@ class Thumbnailer(object):
 		The ThumbnailImageField uses this to negotiate whether to generate JPEG or PNG
 		thumbnails.
 		"""
-		return Thumbnailer.PRESERVE_ALPHA
+		return Thumbnail.PRESERVE_ALPHA
 
 	def thumbnail(self, im):
 		"""Called to actually perform the thumbnailing of the object."""
-		size = im.size()
+		size = im.size
 		if size[0] < self.dims[0] and size[1] < self.dims[1]:
 			return im
-		return im.thumbnail(self.dims, Image.ANTIALIAS)
+		im.thumbnail(self.dims, Image.ANTIALIAS)
+		return im
 
 
-class ZoomingThumbnailer(Thumbnailer):
+class ZoomingThumbnail(Thumbnail):
 	"""Generates a thumbnail of an image at a given size, but zoomed in
 	by a certain factor on the middle of the image.
 
-	This is primarily useful when generating thumbnails of textures;"""
+	This is primarily useful when generating thumbnails of textures, where the detail is
+	lost by the normal thumbnailer."""
 
 	def __init__(self, scale_factor, w=None, h=None):
-		super(ZoomingThumbnailer, self).__init__(w, h)
+		super(ZoomingThumbnail, self).__init__(w, h)
 		self.scale_factor = scale_factor
 
 	def thumbnail(self, im):
 		zoomed_dims = (self.dims[0] * self.scale_factor,
 					 self.dims[1] * self.scale_factor)
-		zoomed = im.thumbnail(zoomed_dims, Image.ANTIALIAS)
+		im.thumbnail(zoomed_dims, Image.ANTIALIAS)
 		return im.crop((
 			(self.zoomed_dims[0] - self.dims[0])//2,
 			(self.zoomed_dims[1] - self.dims[1])//2,
