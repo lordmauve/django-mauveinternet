@@ -190,7 +190,7 @@ class RoundedThumbnail(Thumbnail):
 
 	def generateCorners(self):
 		import math
-		w = int(self.radius * 0.707 + 0.5)
+		w = int(math.ceil(self.radius * math.sqrt(0.5)))
 		ioff = self.radius - w
 		buf = '' 
 		for j in range(w):
@@ -207,12 +207,12 @@ class RoundedThumbnail(Thumbnail):
 				i += 1
 
 		q = Image.fromstring('L', (w, w), buf)
-		self.br = Image.new('L', (self.radius, self.radius), 'black') 
+		self.br = Image.new('L', (self.radius, self.radius), 'white') 
 		self.br.paste(q, (ioff, 0))
 		q = ImageOps.mirror(q.rotate(270))
 		self.br.paste(q, (0, ioff))
 		draw = ImageDraw.Draw(self.br)
-		draw.rectangle((0, 0, ioff, ioff), fill='white')
+		draw.rectangle((self.radius-ioff, self.radius-ioff, self.radius, self.radius), fill='black')
 		del(draw)
 
 		self.tr = ImageOps.flip(self.br)
