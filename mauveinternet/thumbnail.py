@@ -9,7 +9,7 @@ from django.db.models import ImageField, signals
 from django.dispatch import dispatcher
 from django.utils.functional import curry
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 class ThumbnailImageField(ImageField):
@@ -82,14 +82,14 @@ class ThumbnailImageField(ImageField):
 			# generate thumbnail
 			if im is None:
 				im = Image.open(orig)
-			tim = thumbnailer.thumbnail(im)
+			tim = thumbnailer.thumbnail(im.copy())	#thumbnail a copy (Image.thumbnail operates in-place)
 
 			dirn = os.path.dirname(thumb)
 			if not os.path.exists(dirn):
 				os.makedirs(dirn)
 
 			if thumb.endswith('.jpg'):
-				tim.save(thumb, 'JPEG', quality=80)
+				tim.save(thumb, 'JPEG')
 			else:
 				tim.save(thumb, 'PNG')
 
@@ -155,8 +155,8 @@ class Thumbnail(object):
 
 
 class ZoomingThumbnail(Thumbnail):
-	"""Generates a thumbnail of an image at a given size, but zoomed in
-	by a certain factor on the middle of the image.
+	"""Generates thumbnails at a given size, but zoomed in
+	by a certain factor on the middle of the source image.
 
 	This is primarily useful when generating thumbnails of textures, where the detail is
 	lost by the normal thumbnailer."""
@@ -166,6 +166,7 @@ class ZoomingThumbnail(Thumbnail):
 		self.scale_factor = scale_factor
 
 	def thumbnail(self, im):
+		#TODO: adjust zoom to fit, for non-square images
 		zoomed_dims = (self.dims[0] * self.scale_factor,
 					 self.dims[1] * self.scale_factor)
 		im.thumbnail(zoomed_dims, Image.ANTIALIAS)
@@ -176,3 +177,50 @@ class ZoomingThumbnail(Thumbnail):
 			self.dims[1])
 		)
 				
+
+class RoundedThumbnail(Thumbnail):
+	"""Generates thumbnails with rounded corners."""
+	def __init__(self, radius=10, w=None, h=None):
+		super(RoundedThumbnail, self).__init__(w, h)
+		self.radius = radius
+		self.generateCorners()
+
+	def output_alpha(self):
+		return Thumbnail.CREATE_ALPHA
+
+	def generateCorners(self):
+		import math
+		w = self.radius - 1
+		buf = '' 
+		for j in range(w):
+			row = math.sqrt(self.radius ** 2 - (j + 1)**2) - 1
+			i = 0
+			while i < row:
+				buf += '\xff'
+				i += 1
+			frac = (row - math.floor(row))
+			buf += chr(int(frac * 255))
+			while i < w:
+				buf += '\x00'
+				i += 1
+			
+		self.br = Image.frombuffer(buf)
+		self.tr = ImageOps.flip(self.br)
+		self.tl = ImageOps.mirror(self.tr)
+		self.bl = ImageOps.mirror(self.br)
+
+	def generateMask(self, w, h):
+		mask = Image.new('L', (w, w), 'white')
+		for corner, top, left in [(self.tl, 0, 0), (self.tr, 0, w-self.radius), (self.bl, h-self.radius, 0), (self.br, h-self.radius, w-self.radius)]:
+			mask.paste(corner, (left, top))
+		return mask	
+
+	def thumbnail(self, im):
+		im = im.resize((w*2, w*2), Image.ANTIALIAS)
+		im = im.crop((0, 0, w, w))
+
+		mask = self.generateMask(w, w)
+		
+		buf = Image.new('RGBA', (w, w))
+		buf.paste(im, (0, 0), mask)
+		return buf
