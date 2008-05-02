@@ -9,7 +9,7 @@ from django.db.models import ImageField, signals
 from django.dispatch import dispatcher
 from django.utils.functional import curry
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 
 
 class ThumbnailImageField(ImageField):
@@ -190,37 +190,47 @@ class RoundedThumbnail(Thumbnail):
 
 	def generateCorners(self):
 		import math
-		w = self.radius - 1
+		w = int(self.radius * 0.707 + 0.5)
+		ioff = self.radius - w
 		buf = '' 
 		for j in range(w):
-			row = math.sqrt(self.radius ** 2 - (j + 1)**2) - 1
+			row = math.sqrt(self.radius ** 2 - (j + 0.5) ** 2)
 			i = 0
-			while i < row:
+			while i + ioff < (row-1):
 				buf += '\xff'
 				i += 1
 			frac = (row - math.floor(row))
 			buf += chr(int(frac * 255))
+			i += 1
 			while i < w:
 				buf += '\x00'
 				i += 1
-			
-		self.br = Image.frombuffer(buf)
+
+		q = Image.fromstring('L', (w, w), buf)
+		self.br = Image.new('L', (self.radius, self.radius), 'black') 
+		self.br.paste(q, (ioff, 0))
+		q = ImageOps.mirror(q.rotate(270))
+		self.br.paste(q, (0, ioff))
+		draw = ImageDraw.Draw(self.br)
+		draw.rectangle((0, 0, ioff, ioff), fill='white')
+		del(draw)
+
 		self.tr = ImageOps.flip(self.br)
 		self.tl = ImageOps.mirror(self.tr)
 		self.bl = ImageOps.mirror(self.br)
 
-	def generateMask(self, w, h):
-		mask = Image.new('L', (w, w), 'white')
-		for corner, top, left in [(self.tl, 0, 0), (self.tr, 0, w-self.radius), (self.bl, h-self.radius, 0), (self.br, h-self.radius, w-self.radius)]:
+	def generateMask(self, dims):
+		mask = Image.new('L', dims, 'white')
+		w, h = dims
+		for corner, top, left in [(self.tl, 0, 0), (self.tr, 0, w - self.radius), (self.bl, h - self.radius, 0), (self.br, h - self.radius, w - self.radius)]:
 			mask.paste(corner, (left, top))
 		return mask	
 
 	def thumbnail(self, im):
-		im = im.resize((w*2, w*2), Image.ANTIALIAS)
-		im = im.crop((0, 0, w, w))
+		im.thumbnail(self.dims, Image.ANTIALIAS)
 
-		mask = self.generateMask(w, w)
+		mask = self.generateMask(im.size)
 		
-		buf = Image.new('RGBA', (w, w))
+		buf = Image.new('RGBA', im.size)
 		buf.paste(im, (0, 0), mask)
 		return buf
