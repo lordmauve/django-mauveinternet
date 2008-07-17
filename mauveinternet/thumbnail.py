@@ -234,3 +234,18 @@ class RoundedThumbnail(Thumbnail):
 		buf = Image.new('RGBA', im.size)
 		buf.paste(im, (0, 0), mask)
 		return buf
+
+
+class WatermarkedThumbnail(Thumbnail):
+	def __init__(self, watermark, w=None, h=None):
+		super(WatermarkedThumbnail, self).__init__(w, h)
+		self.watermark = Image.open(os.path.join(settings.MEDIA_ROOT, watermark))
+		self.watermark.load()
+
+	def thumbnail(self, im):
+		im = super(WatermarkedThumbnail, self).thumbnail(im)
+		pos = (im.size[0] - self.watermark.size[0],
+		       im.size[1] - self.watermark.size[1])
+
+		im.paste(self.watermark, pos, self.watermark)
+		return im

@@ -9,6 +9,7 @@ def template(request, templ, **kwargs):
         c = RequestContext(request, kwargs)
         return HttpResponse(t.render(c), mimetype='text/html; charset=UTF-8')
 
+
 def MAGICTEMPLATE(templ):
 	"""Experimental voodoo.
 
@@ -26,3 +27,9 @@ def MAGICTEMPLATE(templ):
         t = loader.get_template(templ)
         c = RequestContext(locals['request'], locals)
         return HttpResponse(t.render(c), mimetype='text/html; charset=UTF-8')
+
+
+def forbidden(request):
+        t = loader.get_template("forbidden.html")
+        c = RequestContext(request, kwargs)
+        return HttpResponseForbidden(t.render(c), mimetype='text/html; charset=UTF-8')

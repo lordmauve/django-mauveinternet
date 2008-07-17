@@ -79,76 +79,76 @@ class Currency(object):
 Currency.create('GBP', u'Pound Sterling', u'£', '')
 Currency.create('EUR', u'Euro', u'€', '')
 Currency.create('USD', u'United States Dollar', suffix='')
-Currency.create('AUD', u'Australian Dollar')
-Currency.create('JPY', u'Japanese Yen', u'¥', '')
-Currency.create('XCD', u'East Caribbean Dollar')
-Currency.create('EGP', u'Egyptian Pound', u'ج.م')
-Currency.create('NZD', u'New Zealand Dollar')
-Currency.create('CAD', u'Canadian Dollar')
-Currency.create('HKD', u'Hong Kong Dollar')
-Currency.create('RUB', u'Russian Federation Rouble', suffix=u'руб')
-Currency.create('CYP', u'Cypriot Pound', u'£') # adopting €, 2008-01-01
-Currency.create('CZK', u'Czech Koruna')	#Czech republic intends to adopt € in 2012
-Currency.create('NOK', u'Norwegian Krone', suffix='kr.')
-Currency.create('DKK', u'Danish Krone', suffix='kr.')
-Currency.create('SEK', u'Swedish Krone', suffix='kr.')
-Currency.create('ISK', u'Icelandic Króna', suffix=u'Íkr')
-Currency.create('CHF', u'Swiss Franc', suffix=u'F')
-Currency.create('INR', u'Indian Rupee', u'रु')
-Currency.create('AFA', u'Afghani')
-Currency.create('ALL', u'Lek')
-Currency.create('DZD', u'Algerian Dinar')
-Currency.create('XAF', u'Central African Franc', 'CFA')
-Currency.create('ZWD', u'Zimbabwe Dollar')
-Currency.create('AOA', u'Kwanza', suffix='Kz')
-Currency.create('AMD', u'Dram')
-Currency.create('BGN', u'Bulgarian Lev', suffix=u'лв')
-Currency.create('EEK', u'Estonian Kroon', suffix=u'KR')
-Currency.create('HUF', u'Hungarian Forint', suffix=u'Ft')
-Currency.create('LTL', u'Lithuanian Litas', suffix=u'Lt')
-Currency.create('LVL', u'Latvian Lats', u'Ls')
-Currency.create('MTL', u'Maltese Lira', u'Lm')	# Adopting €, 2007-01-01
-Currency.create('PLN', u'Polish Złoty', suffix=u'zł')	# Poland will probably adopt the € on 2012-01-01
-Currency.create('RON', u'Romanian Leu', suffix=u'L')	# Romania intends to adopt € in 2014
-Currency.create('SKK', u'Slovak Koruna', suffix=u'Sk')	# Slovakia will adopt € on 2009-01-01
-Currency.create('HRK', u'Croatian Kuna', suffix=u'kn')
-Currency.create('TRY', u'Turkish New Lira', u'YTL')
-Currency.create('CNY', u'Chinese Renminbi', u'¥')
-Currency.create('IDR', u'Indonesian Rupiah', u'Rp')
-Currency.create('KRW', u'South Korean Won', u'₩')
-Currency.create('MYR', u'Malaysian Ringgit', u'RM')
-Currency.create('PHP', u'Philippine Peso', u'\u20B1')
-Currency.create('SGD', u'Singapore Dollar', u'S$')
-Currency.create('THB', u'Thai Baht', u'฿')
-Currency.create('ZAR', u'South African Rand', u'R')
 
+Currency.create('AFA', u'Afghani')
+Currency.create('DZD', u'Algerian Dinar')
 Currency.create('ARS', u'Argentine Peso')
-Currency.create('FJD', u'Fijian Dollar', u'FJ$')
+Currency.create('AUD', u'Australian Dollar')
 Currency.create('BSD', u'Bahamian Dollar', u'B$')
 Currency.create('BRL', u'Brazilian Real', u'R$')
-Currency.create('CLP', u'Chilean Peso')
-Currency.create('COP', u'Columbian Peso')
+Currency.create('BGN', u'Bulgarian Lev', suffix=u'лв')
+Currency.create('CAD', u'Canadian Dollar')
+Currency.create('XAF', u'Central African Franc', 'CFA')
 Currency.create('XPF', u'Change Franc Pacifique', suffix=u'F')
+Currency.create('CLP', u'Chilean Peso')
+Currency.create('CNY', u'Chinese Renminbi', u'¥')
+Currency.create('COP', u'Columbian Peso')
+Currency.create('HRK', u'Croatian Kuna', suffix=u'kn')
+Currency.create('CYP', u'Cypriot Pound', u'£') # adopting €, 2008-01-01
+Currency.create('CZK', u'Czech Koruna')	#Czech republic intends to adopt € in 2012
+Currency.create('DKK', u'Danish Krone', suffix='kr.')
+Currency.create('AMD', u'Dram')
+Currency.create('XCD', u'East Caribbean Dollar')
+Currency.create('EGP', u'Egyptian Pound', u'ج.م')
+Currency.create('EEK', u'Estonian Kroon', suffix=u'KR')
+Currency.create('FJD', u'Fijian Dollar', u'FJ$')
 Currency.create('GHS', u'Ghanaian Cedi', u'₵')
 Currency.create('GTQ', u'Guatemalan Quetzal', u'Q')
 Currency.create('HNL', u'Honduran Lempira', u'L')
+Currency.create('HKD', u'Hong Kong Dollar')
+Currency.create('HUF', u'Hungarian Forint', suffix=u'Ft')
+Currency.create('ISK', u'Icelandic Króna', suffix=u'Íkr')
+Currency.create('INR', u'Indian Rupee', u'रु')
+Currency.create('IDR', u'Indonesian Rupiah', u'Rp')
 Currency.create('ILS', u'Israeli Shekel', suffix=u'₪')
 Currency.create('JMD', u'Jamaican dollar')
+Currency.create('JPY', u'Japanese Yen', u'¥', '')
+Currency.create('AOA', u'Kwanza', suffix='Kz')
+Currency.create('LVL', u'Latvian Lats', u'Ls')
+Currency.create('ALL', u'Lek')
+Currency.create('LTL', u'Lithuanian Litas', suffix=u'Lt')
+Currency.create('MYR', u'Malaysian Ringgit', u'RM')
+Currency.create('MTL', u'Maltese Lira', u'Lm')	# Adopting €, 2007-01-01
 Currency.create('MXN', u'Mexican Peso')
 Currency.create('MAD', u'Moroccan Dirham', u'د.م')
 Currency.create('MMK', u'Myanma Kyat', u'K')
 Currency.create('ANG', u'Netherlands Antillean Gulden', u'ƒ')
+Currency.create('NZD', u'New Zealand Dollar')
+Currency.create('NOK', u'Norwegian Krone', suffix='kr.')
 Currency.create('PKR', u'Pakistani Rupee', u'Rs. ')
 Currency.create('PAB', u'Panamanian Balboa', u'B./')
 Currency.create('PEN', u'Peruvian Sol', u'S/.')
+Currency.create('PHP', u'Philippine Peso', u'\u20B1')
+Currency.create('PLN', u'Polish Złoty', suffix=u'zł')	# Poland will probably adopt the € on 2012-01-01
+Currency.create('RON', u'Romanian Leu', suffix=u'L')	# Romania intends to adopt € in 2014
+Currency.create('RUB', u'Russian Federation Rouble', suffix=u'руб')
 Currency.create('RSD', u'Serbian Dinar', u'дин.')
+Currency.create('SGD', u'Singapore Dollar', u'S$')
+Currency.create('SKK', u'Slovak Koruna', suffix=u'Sk')	# Slovakia will adopt € on 2009-01-01
+Currency.create('ZAR', u'South African Rand', u'R')
+Currency.create('KRW', u'South Korean Won', u'₩')
 Currency.create('LKR', u'Sri Lankan Rupee', u'₨')
+Currency.create('SEK', u'Swedish Krone', suffix='kr.')
+Currency.create('CHF', u'Swiss Franc', suffix=u'F')
 Currency.create('TWD', u'Taiwanese Dollar')
+Currency.create('THB', u'Thai Baht', u'฿')
 Currency.create('TTD', u'Trinidad and Tobago Dollar')
 Currency.create('TND', u'Tunisian Dinar', u'د.ت')
+Currency.create('TRY', u'Turkish New Lira', u'YTL')
 Currency.create('AED', u'United Arab Emirates Dirham', u'د.إ')
 Currency.create('VEB', u'Venezuelan Bolívar', u'Bs')
 Currency.create('VND', u'Vietnamese đồng', suffix=u'₫')
+Currency.create('ZWD', u'Zimbabwe Dollar')
 
 #TODO: add the following
 # see also http://www.xe.com/symbols.php
@@ -395,10 +395,11 @@ class Money(object):
 import django.newforms as forms
 
 class CurrencyFormWidget(forms.Widget):
-	def __init__(self, attrs=None):
-		super(CurrencyFormWidget, self).__init__(attrs)
-		self.currencywidget=forms.Select(choices=[(c.code, c.description) for c in Currency.currencies], attrs=attrs)
-		self.valuewidget=forms.TextInput(attrs=attrs)
+	def __init__(self, attrs={}):
+		super(CurrencyFormWidget, self).__init__(attrs=attrs)
+		self.attrs = self.build_attrs({'class': 'currency'})
+		self.currencywidget=forms.Select(choices=[(c.code, c.description) for c in Currency.currencies])
+		self.valuewidget=forms.TextInput()
 
 	def render(self, name, value, attrs=None):
 		if value:
@@ -411,11 +412,8 @@ class CurrencyFormWidget(forms.Widget):
 		else:
 			vval=''
 
-		cattrs=attrs.copy()
-		cattrs['id']=cattrs['id']+'__currency'
-
-		vattrs=attrs.copy()
-		vattrs['id']=vattrs['id']+'__value'
+		cattrs = self.build_attrs(attrs, id=attrs['id'] + '__currency')
+		vattrs = self.build_attrs(attrs, id=attrs['id'] + '__value')
 
 		return self.currencywidget.render(name+'__currency', cval, cattrs)+self.valuewidget.render(name+'__value', vval, vattrs)
 
