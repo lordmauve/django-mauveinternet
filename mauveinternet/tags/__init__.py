@@ -1,6 +1,10 @@
 import re
 from datetime import timedelta
-from django import newforms as forms
+
+from django import forms
+if hasattr(forms, 'Manipulator'):
+	from django import newforms as forms
+
 
 class TimeField(forms.RegexField):
 	"""A time field that works around the fact that Python times only represent

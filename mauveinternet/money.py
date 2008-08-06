@@ -392,7 +392,9 @@ class Money(object):
 	sum=classmethod(sum)
 
 
-import django.newforms as forms
+from django import forms
+if hasattr(forms, 'Manipulator'):
+	from django import newforms as forms
 
 class CurrencyFormWidget(forms.Widget):
 	def __init__(self, attrs={}):
