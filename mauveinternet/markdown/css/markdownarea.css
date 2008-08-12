@@ -1,0 +1,46 @@
+textarea.markdown {
+	width: 50em;
+	margin-left: 9em;
+}
+
+ul.markdown_toolbar {
+	margin-left: 0;
+	padding: 0;
+}
+
+ul.markdown_toolbar li {
+	list-style: none;
+	display: inline;
+	padding-right: 5px;
+	border: outset silver 1px;
+	background-color: silver;
+	padding: 2px 4px;
+}
+
+ul.markdown_toolbar li a {
+	color: black;
+}
+
+.markdown_preview {
+	border: solid silver 1px;
+	height: 20em;
+	width: 50em;
+	overflow: auto;
+	padding: 1px 15px;
+}
+
+.markdown_preview p,
+.markdown_preview ul
+{
+	margin: 1em 0 !important;
+	padding: 0 !important;
+}
+
+.markdown_preview p {
+	text-align: justify;
+}
+
+.markdown_preview .caret {
+	border-right: solid black 1px;
+	margin-right: -1px;
+}
