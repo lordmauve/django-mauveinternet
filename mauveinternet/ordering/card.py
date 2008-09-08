@@ -146,10 +146,15 @@ class Card(object):
 		)
 
 
-import django.newforms as forms
+from django import forms
+if hasattr(forms, 'Manipulator'):
+	try:
+		from django import newforms as forms
+	except ImportError:
+		from django import forms
 
 class CardNumberField(forms.RegexField):
-	"""Django newforms field for validating credit card numbers
+	"""Django forms field for validating credit card numbers
 	using the Luhn checksum.
 
 	"""

@@ -3,7 +3,10 @@ from datetime import timedelta
 
 from django import forms
 if hasattr(forms, 'Manipulator'):
-	from django import newforms as forms
+	try:
+		from django import newforms as forms
+	except ImportError:
+		from django import forms
 
 
 class TimeField(forms.RegexField):

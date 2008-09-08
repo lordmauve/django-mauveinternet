@@ -55,7 +55,14 @@ def call(parser, token):
         except ValueError:
                 raise TemplateSyntaxError, "%r tag requires exactly one arguments" % name
 
-	nodelist = parser.parse(('endcall',))
+	try:
+		seen_blocks = parser.__loaded_blocks
+		del(parser.__loaded_blocks)
+	except AttributeError:
+		nodelist = parser.parse(('endcall',))
+	else:
+		nodelist = parser.parse(('endcall',))
+		parser.__loaded_blocks = seen_blocks
 	parser.delete_first_token()	# consume {% endwrapwith %} tag
 	return CallNode(nodelist, template_name[1:-1])
 

@@ -1,5 +1,10 @@
 from django.contrib.sites.models import Site
-from django import newforms as forms
+from django import forms
+if hasattr(forms, 'Manipulator'):
+	try:
+		from django import newforms as forms
+	except ImportError:
+		from django import forms
 from django.core.mail import send_mail, mail_managers
 
 def mail_form_to_managers(form, preamble=None, exclude=[]):

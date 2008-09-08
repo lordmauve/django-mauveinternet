@@ -394,7 +394,11 @@ class Money(object):
 
 from django import forms
 if hasattr(forms, 'Manipulator'):
-	from django import newforms as forms
+	try:
+		from django import newforms as forms
+	except ImportError:
+		from django import forms
+
 
 class CurrencyFormWidget(forms.Widget):
 	def __init__(self, attrs={}):
@@ -434,6 +438,7 @@ class CurrencyFormWidget(forms.Widget):
 			except InvalidOperation: pass
 		return Money(0, currency=currency)
 
+
 class CurrencyFormField(forms.Field):
 	widget=CurrencyFormWidget
 
@@ -441,6 +446,7 @@ class CurrencyFormField(forms.Field):
 		if self.required and value is None:
 			raise forms.ValidationError(ugettext(u'This field is required.'))
 		return value
+
 
 import django.db.models
 
@@ -469,7 +475,7 @@ class CurrencyModelField(django.db.models.Field):
 			raise django.db.models.validators.ValidationError(_("This currency is invalid."))
 
 	def formfield(self, form_class=CurrencyFormField, **kwargs):
-		"Returns a django.newforms.Field instance for this database Field."
+		"Returns a django.forms.Field instance for this database Field."
 		defaults = {'required': not self.blank, 'label': django.db.models.capfirst(self.verbose_name), 'help_text': self.help_text}
 #		if self.choices:
 #			defaults['widget'] = forms.Select(choices=self.get_choices())

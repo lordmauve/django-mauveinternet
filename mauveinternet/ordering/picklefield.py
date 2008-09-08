@@ -2,7 +2,7 @@ from base64 import b64encode, b64decode
 from cPickle import loads, dumps
 
 from django.db import models
-from django.core import validators
+from django.core import exceptions
 
 class PickleField(models.TextField):
 	__metaclass__=models.SubfieldBase
@@ -31,7 +31,7 @@ class PickleField(models.TextField):
 				pass
 
 		if value and not isinstance(value, self.value_class):
-			raise validators.ValidationError, "This value must be an instance of %s."%self.value_class.__name__
+			raise exceptions.ValidationError, "This value must be an instance of %s."%self.value_class.__name__
 
 		return value
 

@@ -1,4 +1,10 @@
-import django.newforms as forms
+from django import forms
+if hasattr(forms, 'Manipulator'):
+	try:
+		from django import newforms as forms
+	except ImportError:
+		from django import forms
+
 from mauveinternet.ordering.lockbox import Lockable
 from mauveinternet.ordering.models import get_order_model, get_status_options
 from mauveinternet.ordering.card import is_valid_pan
