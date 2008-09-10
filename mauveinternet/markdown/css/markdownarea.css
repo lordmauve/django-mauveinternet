@@ -1,32 +1,75 @@
 textarea.markdown {
-	width: 50em;
+	width: 492px;
+	height: 15em;
+	padding: 2px 3px;
 	margin-left: 9em;
+	font-family: monospace;
+	font-size: 100%;
 }
 
-ul.markdown_toolbar {
-	margin-left: 0;
-	padding: 0;
+form ul.markdown_toolbar {
+	margin: 0 auto 0 9em;
+	padding: 3px;
+	background-color: #417690;
+	width: 494px;
+	height: 18px;
 }
 
-ul.markdown_toolbar li {
+form ul.markdown_toolbar li {
 	list-style: none;
-	display: inline;
-	padding-right: 5px;
-	border: outset silver 1px;
-	background-color: silver;
-	padding: 2px 4px;
+	display: block;
+	float: left;
+	margin-right: 3px;
+	height: 18px;
 }
 
 ul.markdown_toolbar li a {
+	display: block;
+	height: 18px;
 	color: black;
+	background-color: #a7c0cc;
+	width: 0;
+	overflow: hidden;
+	padding-left: 18px;
+	background-repeat: no-repeat;
+	background-position: top left;
+}
+
+ul.markdown_toolbar li a:hover {
+	background-color: #bbced8;
+}
+
+.markdown_bold_button {
+	background-image: url('../../icons/markdown/bold.png');
+}
+
+.markdown_italic_button {
+	background-image: url('../../icons/markdown/italic.png');
+}
+
+.markdown_heading_button {
+	background-image: url('../../icons/markdown/heading.png');
+}
+
+.markdown_unordered_list_button {
+	background-image: url('../../icons/markdown/unordered-list.png');
+}
+
+.markdown_ordered_list_button {
+	background-image: url('../../icons/markdown/ordered-list.png');
+}
+
+.markdown_link_button {
+	background-image: url('../../icons/markdown/link.png');
 }
 
 .markdown_preview {
 	border: solid silver 1px;
-	height: 20em;
-	width: 50em;
+	height: 10em;
+	width: 468px;
 	overflow: auto;
 	padding: 1px 15px;
+	margin-left: 9em;
 }
 
 .markdown_preview p,
@@ -43,4 +86,15 @@ ul.markdown_toolbar li a {
 .markdown_preview .caret {
 	border-right: solid black 1px;
 	margin-right: -1px;
+}
+
+#link-dialog {
+	position: absolute;
+	padding: 10px;
+	background-color: white;
+	border: solid silver 1px;
+}
+
+#link-dialog label {
+	padding-right: 10px;
 }

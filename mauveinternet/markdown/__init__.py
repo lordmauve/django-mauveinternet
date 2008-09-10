@@ -9,3 +9,8 @@ class MarkdownTextarea(forms.Textarea):
 		super(MarkdownTextarea, self).__init__(attrs)
 		self.attrs.update({'class': 'markdown'})
 
+
+_link_providers = set()
+
+def register_linkable(model):
+	_link_providers.add(model)
