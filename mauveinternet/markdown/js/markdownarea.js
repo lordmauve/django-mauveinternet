@@ -137,6 +137,7 @@ Event.observe(document, 'dom:loaded', function () {
 			window.open('http://daringfireball.net/projects/markdown/syntax');
 		} , {
 			className: 'markdown_help_button',
+			title: 'Help'
 		}); 
 		  
 //		toolbar.addButton('Block Quote',function(event){  
