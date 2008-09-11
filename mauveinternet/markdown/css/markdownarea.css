@@ -1,18 +1,28 @@
 textarea.markdown {
-	width: 492px;
-	height: 15em;
+	width: 610px;
+	height: 20em;
 	padding: 2px 3px;
 	margin-left: 9em;
 	font-family: monospace;
 	font-size: 100%;
+	margin-top: 0;
 }
 
+.markdown_container {
+	margin-left: 10em;
+}
+
+.markdown_container textarea.markdown {
+	margin-left: 0;
+} 
+
 form ul.markdown_toolbar {
-	margin: 0 auto 0 9em;
 	padding: 3px;
+	margin: 0;
 	background-color: #417690;
-	width: 494px;
+	width: 612px;
 	height: 18px;
+	position: relative;
 }
 
 form ul.markdown_toolbar li {
@@ -21,6 +31,7 @@ form ul.markdown_toolbar li {
 	float: left;
 	margin-right: 3px;
 	height: 18px;
+	padding: 0;
 }
 
 ul.markdown_toolbar li a {
@@ -63,24 +74,46 @@ ul.markdown_toolbar li a:hover {
 	background-image: url('../../icons/markdown/link.png');
 }
 
-.markdown_preview {
-	border: solid silver 1px;
-	height: 10em;
-	width: 468px;
-	overflow: auto;
-	padding: 1px 15px;
-	margin-left: 9em;
+.markdown_help_button {
+	background-image: url('../../icons/markdown/help.png');
+	position: absolute;
+	right: 3px;
+	top: 3px;
 }
 
-.markdown_preview p,
-.markdown_preview ul
-{
-	margin: 1em 0 !important;
-	padding: 0 !important;
+.markdown_toolbar .markdown_toggle_preview {
+	display: block;
+	width: auto;
+	padding: 2px 4px;
+	height: 14px;
+	position: absolute;
+	top: 3px;	
+	right: 24px;
+}
+
+.markdown_preview {
+	border: solid silver 1px;
+	border-top: solid 3px #417690;
+	border-bottom: none;
+	height: 13em;
+	width: 586px;
+	overflow: auto;
+	padding: 1px 15px;
+}
+
+form .markdown_preview p {
+	margin: 1em 0;
+	padding: 0;
 }
 
 .markdown_preview p {
 	text-align: justify;
+}
+
+form .markdown_preview ul,
+form .markdown_preview ol {
+	margin-left: 2.5em;
+	padding-left: 0;
 }
 
 .markdown_preview .caret {
@@ -97,4 +130,8 @@ ul.markdown_toolbar li a:hover {
 
 #link-dialog label {
 	padding-right: 10px;
+}
+
+#link-dialog .buttons {
+	text-align: right;
 }

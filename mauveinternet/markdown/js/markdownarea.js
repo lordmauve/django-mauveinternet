@@ -1,16 +1,20 @@
 Event.observe(document, 'dom:loaded', function () {
 	
 	$$('textarea.markdown').each(function (t) {
+		var outer = new Element('div', {'class': 'markdown_container'});
+		t.insert({before: outer});
+		outer.appendChild(t);	//move t
 		var converter = new Showdown.converter;  
 		var preview = new Element('div', {'class': 'markdown_preview'}).update(converter.makeHtml(t.getValue()));
 		t.insert({before: preview});
+		preview.show();
 
 		var area = new Control.TextArea(t);
 		var toolbar = new Control.TextArea.ToolBar(area);  
 		toolbar.container.className = 'markdown_toolbar';
+		t.setStyle({borderTop: 'none'});
 
-		//preview of markdown text  
-		area.observe('change', function(value){  
+		update_preview = function(value){  
 			var start = area.getSelectionStart();
 			var src = area.getValue();
 
@@ -31,8 +35,17 @@ Event.observe(document, 'dom:loaded', function () {
 			{
 				preview.scrollTop = sel.cumulativeOffset().top - preview.cumulativeOffset().top - 30;
 			}
-		}); 
-		  
+		};
+
+		//preview of markdown text  
+		area.observe('change', update_preview); 
+		Event.observe(area.element, 'click', update_preview); 
+		Event.observe(area.element, 'keypress', function (ev) {
+			if (ev.keyCode == 13 && (ev.ctrlKey || ev.metaKey)) {
+				area.replaceSelection('  \n');
+				Event.stop(ev);
+			}
+		}.bindAsEventListener(area.element)); 
 		toolbar.addButton('Bold',function(){  
 			this.wrapSelection('**','**');  
 		},{  
@@ -74,35 +87,57 @@ Event.observe(document, 'dom:loaded', function () {
 		  
 		toolbar.addButton('Heading',function(){  
 			var selection = this.getSelection();  
-			if(selection == '')  
-				selection = 'Heading';  
-			this.replaceSelection("\n" + selection + "\n" + $R(0,Math.max(5,selection.length)).collect(function(){'-'}).join('') + "\n");  
+			this.replaceSelection("\n" + selection + "\n" + $R(0, Math.min(10, selection.length)).collect(function(){return '-';}).join('') + "\n");  
 		},{  
 			className: 'markdown_heading_button',
 			title: 'Heading'  
 		});  
 		  
 		toolbar.addButton('Unordered List',function(event){  
-			this.collectFromEachSelectedLine(function(line){  
-				return event.shiftKey ? (line.match(/^\*{2,}/) ? line.replace(/^\*/,'') : line.replace(/^\*\s/,'')) : (line.match(/\*+\s/) ? '*' : '* ') + line;  
-			});  
+			if (this.getSelection().match(/^\*\s/m)) {
+				this.collectFromEachSelectedLine(function(line){  
+					return line.replace(/^\*\s+/, '');
+				});  
+			} else {
+				this.collectFromEachSelectedLine(function(line){  
+					return line.replace(/^(\*\s+)?/, '* ');
+				});  
+			}
 		},{  
 			className: 'markdown_unordered_list_button',
 			title: 'Unordered List' 
 		});  
 		  
 		toolbar.addButton('Ordered List',function(event){  
-			var i = 0;  
-			this.collectFromEachSelectedLine(function(line){  
-				if(!line.match(/^\s+$/)){  
-					++i;  
-					return event.shiftKey ? line.replace(/^\d+\.\s/,'') : (line.match(/\d+\.\s/) ? '' : i + '. ') + line;  
-				}  
-			});  
+			if (this.getSelection().match(/^\d+\.\s/m)) {
+				this.collectFromEachSelectedLine(function(line){  
+					return line.replace(/^\d+\.\s+/, '');
+				}); 
+			}
+			else {
+				var i = 0;  
+			
+				this.collectFromEachSelectedLine(function(line){
+					return line.replace(/^(\d+\.\s+)?/, ++i + '. '); 
+				});
+			}
 		},{  
 			className: 'markdown_ordered_list_button', 
 			title: 'Ordered List'
-		});  
+		});
+
+		toolbar.addButton('Hide Preview', function () {
+			preview.toggle();
+			toolbar.container.select('.markdown_toggle_preview')[0].update(preview.visible() ? 'Hide Preview' : 'Show Preview');
+		} , {
+			className: 'markdown_toggle_preview',
+		}); 
+
+		toolbar.addButton('Help', function () {
+			window.open('http://daringfireball.net/projects/markdown/syntax');
+		} , {
+			className: 'markdown_help_button',
+		}); 
 		  
 //		toolbar.addButton('Block Quote',function(event){  
 //			this.collectFromEachSelectedLine(function(line){  
@@ -120,9 +155,9 @@ var LinkDialog = {
 		var cont = new Element('div', {id: 'link-dialog'});
 
 		cont.update('<p>Please select what you would like to link to:</p>' +
-'<p><input type="radio" name="link-dialog-type" id="link-dialog-type-internal" value="internal" checked="checked"/> <label for="link-dialog-type-internal">A page within this site</label>' +
+'<p><input type="radio" name="link-dialog-type" id="link-dialog-type-internal" value="internal" checked="checked"/> <label for="link-dialog-type-internal">A page within this site:</label>' +
 '<select id="link-dialog-model"></select><select id="link-dialog-inst"></select></p>' +
-'<p><input type="radio" name="link-dialog-type" id="link-dialog-type-external" value="external" /> <label for="link-dialog-type-external">Another site on the web</label>' +
+'<p><input type="radio" name="link-dialog-type" id="link-dialog-type-external" value="external" /> <label for="link-dialog-type-external">Another site on the web:</label>' +
 '<input type="text" id="link-dialog-abslink" value="http://" /></p>' +
 '<div class="buttons"><button id="link-dialog-insert">Insert</button><button id="link-dialog-cancel">Cancel</button></div>'
 );
