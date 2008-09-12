@@ -29,9 +29,11 @@ form ul.markdown_toolbar li {
 	list-style: none;
 	display: block;
 	float: left;
+	margin: 0;
 	margin-right: 3px;
 	height: 18px;
 	padding: 0;
+	width: 18px;
 }
 
 ul.markdown_toolbar li a {
@@ -117,8 +119,8 @@ form .markdown_preview ol {
 }
 
 .markdown_preview .caret {
-	border-right: solid black 1px;
 	margin-right: -1px;
+	vertical-align: -1px;
 }
 
 #link-dialog {

@@ -4,7 +4,7 @@ Event.observe(document, 'dom:loaded', function () {
 		var outer = new Element('div', {'class': 'markdown_container'});
 		t.insert({before: outer});
 		outer.appendChild(t);	//move t
-		var converter = new Showdown.converter;  
+		var converter = new Showdown.converter;
 		var preview = new Element('div', {'class': 'markdown_preview'}).update(converter.makeHtml(t.getValue()));
 		t.insert({before: preview});
 		preview.show();
@@ -18,18 +18,10 @@ Event.observe(document, 'dom:loaded', function () {
 			var start = area.getSelectionStart();
 			var src = area.getValue();
 
-			src = src.substr(0, start) + '<span class="caret"></span>' + src.substr(start);
-//			var pbreak = src.lastIndexOf('\n\n', start);
-//			
-//			if (pbreak == -1)
-//				pbreak = src.lastIndexOf('\r\n\r\n', start);
-//
-//			if (pbreak != -1)
-//			{
-//				//insert a marker that we can find later
-//				src = src.substr(0, pbreak) + '\n\n<div class="sel"></div>' + src.substr(pbreak);
-//			}
-			preview.update(converter.makeHtml(src));
+			// Markdown doesn't do anything special with @, which is why this approach works
+			src = src.substr(0, start) + '@@EDITINGCARET@@' + src.substr(start);
+			var html = converter.makeHtml(src).replace(/@@EDITINGCARET@@/, '<img src="/assets/images/markdown/caret.gif" alt="" class="caret" />');
+			preview.update(html);
 			var sel = preview.select('.caret')[0];
 			if (sel)
 			{
@@ -38,7 +30,8 @@ Event.observe(document, 'dom:loaded', function () {
 		};
 
 		//preview of markdown text  
-		area.observe('change', update_preview); 
+		new Form.Element.Observer(t, 0.3, update_preview);
+		//area.observe('change', update_preview); 
 		Event.observe(area.element, 'click', update_preview); 
 		Event.observe(area.element, 'keypress', function (ev) {
 			if (ev.keyCode == 13 && (ev.ctrlKey || ev.metaKey)) {
@@ -130,7 +123,7 @@ Event.observe(document, 'dom:loaded', function () {
 			preview.toggle();
 			toolbar.container.select('.markdown_toggle_preview')[0].update(preview.visible() ? 'Hide Preview' : 'Show Preview');
 		} , {
-			className: 'markdown_toggle_preview',
+			className: 'markdown_toggle_preview'
 		}); 
 
 		toolbar.addButton('Help', function () {
@@ -164,9 +157,10 @@ var LinkDialog = {
 );
 		document.body.appendChild(cont);
 		var at = $(textarea.element).cumulativeOffset();
-		cont.setStyle({left: (at.left + (textarea.element.offsetWidth - cont.offsetWidth)/2) + 'px', top: (at.top + (textarea.element.offsetHeight - cont.offsetHeight)/2) + 'px'});
+		cont.setStyle({left: (at.left + 30) + 'px', top: (at.top + (textarea.element.offsetHeight - cont.offsetHeight)/2) + 'px'});
 		new Ajax.Request('/admin/markdown/links', {method: 'GET'})
 		LinkDialog.modelwatcher = new Form.Element.Observer('link-dialog-model', 0.2, LinkDialog.refreshInstances);
+		Event.observe('link-dialog-abslink', 'focus', function () { $('link-dialog-abslink').select();});
 		Event.observe('link-dialog-insert', 'click', LinkDialog.insertAndClose);
 		Event.observe('link-dialog-cancel', 'click', LinkDialog.close);
 	},
@@ -209,5 +203,5 @@ var LinkDialog = {
 
 	refreshInstances: function(el, value) {
 		new Ajax.Request('/admin/markdown/links?model=' + value, {method: 'GET'})
-	},
+	}
 };

@@ -46,22 +46,22 @@ Control.TextArea = Class.create({
 			return false;
 	},
 	getSelectionStart: function() {
-		if(!!document.selection)
+		if(!!this.element.setSelectionRange)
+			return this.element.selectionStart;
+		else if(!!document.selection)
 		{
 			// The current selection
 			var range = document.selection.createRange();
 			// We'll use this as a 'dummy'
 			var stored_range = range.duplicate();
 			// Select all text
-			stored_range.moveToElementText( element );
+			stored_range.moveToElementText( this.element );
 			// Now move 'dummy' end point to end point of original range
 			stored_range.setEndPoint( 'EndToEnd', range );
 			// Now we can calculate start and end points
 			return stored_range.text.length - range.text.length;
 			//element.selectionEnd = element.selectionStart + range.text.length;
 		}
-		else if(!!this.element.setSelectionRange)
-			return this.element.selectionStart;
 		else
 			return 0;
 	},
