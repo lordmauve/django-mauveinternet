@@ -1,6 +1,21 @@
+import re
 from decimal import Decimal, ROUND_CEILING
 
 from django.conf import settings
+try:
+	from django.dispatch import Signal
+except ImportError:
+	class Signal(object):
+		"""Simple class providing Signal-like functionality"""
+		def __init__(self, providing_args):
+			self.callbacks = []
+
+		def connect(self, callback):
+			self.callbacks.append(callback)
+
+		def send(self, sender, **kwargs):
+			for c in self.callbacks:
+				c(sender, **kwargs)		
 
 class ItemNotRepeatable(Exception):
 	"""Indicates that an attempt to add an item to the basket failed because
@@ -74,23 +89,42 @@ class VATCharge(object):
 
 
 class DeliveryCharge(object):
-	"""Applies a fixed delivery charge from settings"""
-	def __init__(self):
-		"""Store this in case it is changed later"""
-		self.rate=settings.DELIVERY_CHARGE
+	"""Applies a configurable delivery charge from settings"""
+
+	def __init__(self, rates):
+		"""Store the rates applicable to this order, in case they are changed later;
+		
+		Rates should be a sequence of tuples (limit, rate). The applicable rate is 
+		the first rate in the sequence where the subtotal is below the limit.
+
+		limit may also be None, in which case the rate is always returned if no
+		previous limit has matched.
+
+		If no applicable rate is found in the sequence, the delivery charge is nil.
+
+		"""
+		self.rates = rates
 
 	def get_charge(self, subtotal, orderitemlist):
-		return self.rate
+		for limit, rate in self.rates:
+			if limit is None or subtotal < limit:
+				return rate	
+		return Decimal('0.00')
 
 	def __unicode__(self):
 		return u"Delivery"
 
+
+orderitemlist_created = Signal()
 
 class OrderItemList(object):
 	def __init__(self):
 		self.items=[]
 		self.next_id=1	#incrementing id so we can uniquely identify items
 		self.charges=[]
+	
+		# dispatch an event so that apps can hook up delivery charges at this point
+		orderitemlist_created.send(sender=self)
 
 	def add(self, item):
 		for i in self.items:
