@@ -265,6 +265,38 @@ class Thumbnail(object):
 		return im
 
 
+class ZoomToFitThumbnail(Thumbnail):
+	"""Generates thumbnails at the exact dimensions given, with no border.
+	The image is zoomed so as to fit outside the given dimensions, then the
+	rectangle required is cropped from the center."""
+	def __init__(self, w, h):
+		"""Override constructor so as not to accept default arguments"""
+		self.dims = (w, h)
+
+	def thumbnail(self, im):
+		"""Called to actually perform the thumbnailing of the object."""
+		from math import ceil
+		iw, ih = im.size
+		aspect = float(iw)/float(ih)
+
+		tw, th = self.dims
+		aspect_required = float(tw)/float(th)
+
+		if aspect > aspect_required:
+			dh = th
+			dw = int(ceil(th * aspect))
+			l = (dw-tw)/2
+			crop_rect = l, 0, l + tw, th
+		else:
+			dw = tw
+			dh = int(ceil(tw / aspect))
+			t = (dh-th)/2
+			crop_rect = 0, t, tw, t + th
+
+		im.thumbnail((dw,dh), Image.ANTIALIAS)
+		return im.crop(crop_rect)
+
+
 class ZoomingThumbnail(Thumbnail):
 	"""Generates thumbnails at a given size, but zoomed in
 	by a certain factor on the middle of the source image.
