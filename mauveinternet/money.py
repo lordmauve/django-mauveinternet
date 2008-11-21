@@ -407,7 +407,7 @@ class CurrencyFormWidget(forms.Widget):
 		self.currencywidget=forms.Select(choices=[(c.code, c.description) for c in Currency.currencies])
 		self.valuewidget=forms.TextInput()
 
-	def render(self, name, value, attrs=None):
+	def render(self, name, value, attrs={}):
 		if value:
 			cval=value.currency.code
 		else:
@@ -419,7 +419,9 @@ class CurrencyFormWidget(forms.Widget):
 			vval=''
 
 		cattrs = self.build_attrs(attrs, id=attrs['id'] + '__currency')
-		vattrs = self.build_attrs(attrs, id=attrs['id'] + '__value')
+		vattrs = self.build_attrs(attrs)
+		cattrs['id'] = attrs['id'] + '__currency'
+		vattrs['id'] = attrs['id'] + '__value'
 
 		return self.currencywidget.render(name+'__currency', cval, cattrs)+self.valuewidget.render(name+'__value', vval, vattrs)
 
@@ -431,8 +433,11 @@ class CurrencyFormWidget(forms.Widget):
 				currency=Currency.forCode(data[cname])
 			except: pass
 
-		vname=name+'__value'
+		vname = name+'__value'
 		if vname in data:
+			vv = data[vname]
+			if not vv:
+				return
 			try:
 				return Money(0, pennies=int(Decimal(data[vname])*100), currency=currency)
 			except InvalidOperation: pass

@@ -194,18 +194,20 @@ else:
 
 		def save(self, name, content, save=True):
 			super(ImageFileWithThumbnails, self).save(name, content, save=False)
-
-			content.seek(0)
-			self.build_thumbnails(name, content)
+			self.build_thumbnails(name, self)
 
 			if save:
 				self.instance.save()
 
 		def build_thumbnails(self, name, content):
 			im = None
+			content.open()
 			for thumbnailfile in self.thumbnails:
 				if im is None:
-					im = Image.open(content)
+					parser = PILImageFile.Parser()
+					for c in content.chunks():
+						parser.feed(c)
+					im = parser.close()
 
 				thumbnailfile.save_thumbnail(im.copy())	#thumbnail a copy (Image.thumbnail operates in-place)
 		
