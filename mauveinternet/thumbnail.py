@@ -158,7 +158,7 @@ else:
 			return '%s.%s.%s' % (stem, self.thumbname, ext)
 
 		def generate_filename(self, filename):
-			return self.imagefile.field.generate_filename(self.imagefile.instance, self.get_filename(filename))
+			return re.sub(r'/[^/]*$', '/', filename) + self.get_filename(filename)
 
 		def save_thumbnail(self, im_inp):
 			im_out = self.thumbnailer.thumbnail(im_inp)
