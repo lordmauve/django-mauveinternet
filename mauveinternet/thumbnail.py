@@ -199,16 +199,18 @@ else:
 			if save:
 				self.instance.save()
 
-		def build_thumbnails(self, name, content):
-			im = None
-			content.open()
-			for thumbnailfile in self.thumbnails:
-				if im is None:
-					parser = PILImageFile.Parser()
-					for c in content.chunks():
-						parser.feed(c)
-					im = parser.close()
+		def rebuild_thumbnails(self):
+			self.build_thumbnails(self.name, self)
 
+		def build_thumbnails(self, name, content):
+			if not self.thumbnails:
+				return
+
+			data = StringIO(content.read())
+			im = Image.open(data)	#incremental loader is buggy
+
+			for thumbnailfile in self.thumbnails:
+				self.storage.delete(thumbnailfile.name)
 				thumbnailfile.save_thumbnail(im.copy())	#thumbnail a copy (Image.thumbnail operates in-place)
 		
 		def delete(self, save=True):
@@ -395,3 +397,21 @@ class WatermarkedThumbnail(Thumbnail):
 
 		im.paste(self.watermark, pos, self.watermark)
 		return im
+
+
+
+def rebuild_all_thumbnails():
+	from django.db.models import get_models
+	for m in get_models():
+		fs = []
+		for f in m._meta.fields:
+			if isinstance(f, ThumbnailImageField):
+				fs.append(f)
+
+		for inst in m._default_manager.all():
+			for f in fs:
+				file = getattr(inst, f.attname)
+				if file:
+					print file.name
+					#print "%s.%s.%s - \"%s\"" % (m._meta.app_label, m._meta.object_name, f.attname, inst)
+					file.rebuild_thumbnails()
