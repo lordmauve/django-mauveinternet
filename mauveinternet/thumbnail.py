@@ -293,8 +293,11 @@ class ZoomToFitThumbnail(Thumbnail):
 			t = (dh-th)/2
 			crop_rect = 0, t, tw, t + th
 
-		im.thumbnail((dw,dh), Image.ANTIALIAS)
-		return im.crop(crop_rect)
+		if dw < iw or dh < ih:
+			sized = im.resize((dw, dh), Image.ANTIALIAS)
+		else:
+			sized = im.resize((dw, dh), Image.BICUBIC)
+		return sized.crop(crop_rect)
 
 
 class ZoomingThumbnail(Thumbnail):
