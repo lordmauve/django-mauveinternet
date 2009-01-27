@@ -31,6 +31,8 @@ try:
 	from django.db.models.fields.files import ImageFieldFile
 	from django.core.files.base import ContentFile
 except ImportError:
+	from django.dispatch import dispatcher
+	from django.db.models import signals
 	# before FileStorage/ImageField refactor
 	class ThumbnailImageField(ImageField):
 		"""Allows model instance to specify upload_to dynamically; also manages a set of thumbnails
