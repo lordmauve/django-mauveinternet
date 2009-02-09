@@ -1,3 +1,4 @@
+import re
 from django.db import models
 WORD_SCORES = [0, 0, 0.1, 0.1, 0.2, 0.3, 0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3.2]
 
@@ -7,7 +8,7 @@ def content_score(text):
 
 	score = 0
 	word_counts = {}	# keep track of the words seen so we can penalise repetitiveness
-	for w in text.lower().split(' '):
+	for w in re.split(r'\s+', text.lower()):
 		try:
 			wscore = WORD_SCORES[len(w)]
 		except IndexError:

@@ -1,6 +1,6 @@
 import sys
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader, Context
 
@@ -31,5 +31,26 @@ def MAGICTEMPLATE(templ):
 
 def forbidden(request):
         t = loader.get_template("forbidden.html")
-        c = RequestContext(request, kwargs)
+        c = RequestContext(request)
         return HttpResponseForbidden(t.render(c), mimetype='text/html; charset=UTF-8')
+
+
+import django.http
+
+class HttpResponseRedirect(django.http.HttpResponseRedirect):
+	"""A subclass of HttpResponseRedirect that can accept as the first argument
+	either a string or any object with a method get_absolute_url"""
+	def __init__(self, url_or_model, *args, **kwargs):
+		if hasattr(url_or_model, 'get_absolute_url'):
+			url = url_or_model.get_absolute_url()
+		else:
+			url = url_or_model
+
+		super(HttpResponseRedirect, self).__init__(url, *args, **kwargs)
+
+from django.core.urlresolvers import reverse
+
+def redirect(name, *args, **kwargs):
+	"""Looks up a view using URL reversing and then redirects to it"""
+	url = reverse(name, args, kwargs)
+	return HttpResponseRedirect(url)

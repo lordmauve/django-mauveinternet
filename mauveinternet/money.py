@@ -6,6 +6,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 # This is a floating point threshold
 # fractional parts below this value are considered zero when rounding Money calculations
@@ -449,7 +450,7 @@ class CurrencyFormField(forms.Field):
 
 	def clean(self, value):
 		if self.required and value is None:
-			raise forms.ValidationError(ugettext(u'This field is required.'))
+			raise forms.ValidationError(_('This field is required.'))
 		return value
 
 
