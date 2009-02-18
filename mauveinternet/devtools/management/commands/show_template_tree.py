@@ -19,38 +19,43 @@ class InheritanceGraph(object):
 	def __init__(self):
 		self.templates = {}
 
-	def add_template(self, name, extends=None, includes=[]):
-		self.templates[name] = extends, includes
+	def add_template(self, name, extends=None, includes=[], calls=[]):
+		self.templates[name] = extends, includes, calls
 
 	def as_dot(self):
 		node_defs = ''
 		nodes = {}
 		i = 1
 		for k, v in self.templates.items():
-			extends, includes = v
-			nodes[k] = extends, includes, 'node%d' % i
+			extends, includes, calls = v
+			nodes[k] = 'node%d' % i, extends, includes, calls
 			i += 1
 
 		ks = nodes.keys()
 		ks.sort()
 
 		for k in ks:
-			extends, includes, node = nodes[k]
+			node, extends, includes, calls = nodes[k]
 			node_defs += "\t%s [label=\"%s\"];\n" % (node, k)
 
 		inheritance_edges = ''
 		inclusion_edges = ''
+		call_edges = ''
 
 		for t, v in nodes.items():
-			extends, includes, node = v
+			node, extends, includes, calls = v
 			if extends is not None:
 				e = nodes.get(extends.encode('utf8'), None)
 				if e:
-					inheritance_edges += "\t%s -> %s;\n" % (node, e[2])
+					inheritance_edges += "\t%s -> %s;\n" % (node, e[0])
 			for include in includes:
 				e = nodes.get(include.encode('utf8'), None)
 				if e:
-					inclusion_edges += "\t%s -> %s;\n" % (node, e[2])
+					inclusion_edges += "\t%s -> %s;\n" % (node, e[0])
+			for call in calls:
+				e = nodes.get(call.encode('utf8'), None)
+				if e:
+					call_edges += "\t%s -> %s;\n" % (node, e[0])
 		
 		return """digraph template_tree {
 	graph [rankdir=LR];
@@ -59,7 +64,25 @@ class InheritanceGraph(object):
 	%s
 	edge [color=blue];
 	%s
-}""" % (node_defs, inheritance_edges, inclusion_edges)
+	edge [color=red];
+	%s
+}""" % (node_defs, inheritance_edges, inclusion_edges, call_edges)
+
+def display_graph(graph):
+	import os
+	import subprocess
+	import tempfile
+	dotfd, dotname = tempfile.mkstemp(suffix='.dot')
+	dot = os.fdopen(dotfd, 'w')
+	dot.write(graph.as_dot())
+	dot.close()
+	outfile = dotname.replace('.dot', '.svgz')
+	graphviz = subprocess.Popen(['dot', '-Tsvgz', '-o' + outfile, dotname], close_fds=True)
+	graphviz.wait()
+	eog = subprocess.Popen(['eog', outfile])
+	eog.wait()
+	os.unlink(outfile)
+	os.unlink(dotname)
 
 
 class Command(NoArgsCommand):
@@ -74,7 +97,7 @@ class Command(NoArgsCommand):
    		if 'django.template.loaders.filesystem.load_template_source' in settings.TEMPLATE_LOADERS:
 			self.search_filesystem(graph)
 
-		print graph.as_dot()
+		display_graph(graph)
 
 	def inspect_template(self, path):
 		f = open(path, 'rU')
@@ -86,7 +109,7 @@ class Command(NoArgsCommand):
 			f.close()
 
 		templ = re.sub(r'{#.*?#}', '', templ)
-		templ = re.sub(r'\{%\s*comment\s*%\}.*?\{%\s*endcomment\s*%\}', '', templ)
+		templ = re.sub(r'\{%\s*comment\s*%\}[.\n]*?\{%\s*endcomment\s*%\}', '', templ)
 
 		mo = re.match(r'^\s*\{%\s*extends\s+"([^"]+)"\s*%\}', templ)
 
@@ -99,32 +122,36 @@ class Command(NoArgsCommand):
 		for mo in re.finditer(r'\{%\s*include\s+"([^"]+)"\s*%\}', templ):
 			includes.append(mo.group(1))
 
-		return extends, includes
+		calls = []
+		for mo in re.finditer(r'\{%\s*call\s+"([^"]+)"\s*%\}', templ):
+			calls.append(mo.group(1))
+
+		return extends, includes, calls
 
 	def search_app_directories(self, graph):
 		from django.template.loaders.app_directories import app_template_dirs
 		for d in app_template_dirs:
 			for f in self.search_directory(d):
 				try:
-					extends, includes = self.inspect_template(f)
+					extends, includes, calls = self.inspect_template(f)
 				except InvalidTemplate:
 					continue
 				fname = f[len(d):]
 				if fname.startswith('/'):
 					fname = fname[1:]
-				graph.add_template(fname, extends, includes)
+				graph.add_template(fname, extends, includes, calls)
 
 	def search_filesystem(self, graph):
 		for d in settings.TEMPLATE_DIRS:
 			for f in self.search_directory(d):
 				try:
-					extends, includes = self.inspect_template(f)
+					extends, includes, calls = self.inspect_template(f)
 				except InvalidTemplate:
 					continue
 				fname = f[len(d):]
 				if fname.startswith('/'):
 					fname = fname[1:]
-				graph.add_template(fname, extends, includes)
+				graph.add_template(fname, extends, includes, calls)
 
 	def search_directory(self, dir):
 		for root, dirs, files in os.walk(dir):
