@@ -153,6 +153,8 @@ var LinkDialog = {
 '<select id="link-dialog-model"></select><select id="link-dialog-inst"></select></p>' +
 '<p><input type="radio" name="link-dialog-type" id="link-dialog-type-external" value="external" /> <label for="link-dialog-type-external">Another site on the web:</label>' +
 '<input type="text" id="link-dialog-abslink" value="http://" /></p>' +
+'<p><input type="radio" name="link-dialog-type" id="link-dialog-type-email" value="email" /> <label for="link-dialog-type-email">E-mail address:</label>' +
+'<input type="text" id="link-dialog-emaillink" value="" /></p>' +
 '<div class="buttons"><button id="link-dialog-insert">Insert</button><button id="link-dialog-cancel">Cancel</button></div>'
 );
 		document.body.appendChild(cont);
@@ -170,8 +172,9 @@ var LinkDialog = {
 			var link = 'internal:' + $F('link-dialog-model') + '/' + $F('link-dialog-inst');
 			var selected = $('link-dialog-inst').childElements().find(function (x) {return x.selected;});
 			LinkDialog.insert(link, selected.firstChild.nodeValue);
-		}
-		else {
+		} else if ($('link-dialog-type-email').checked) {
+			LinkDialog.insert('mailto:' + $F('link-dialog-emaillink'));
+		} else {
 			LinkDialog.insert($F('link-dialog-abslink'));
 		}
 
@@ -180,7 +183,7 @@ var LinkDialog = {
 
 	insert: function (link, name) {
 		var selection = LinkDialog.textarea.getSelection();  
-		LinkDialog.textarea.replaceSelection('[' + (selection == '' ? ((name) ? name : link) : selection) + '](' + link.replace(/^(?!(ftp|https?|internal):)/, 'http://') + ')');  
+		LinkDialog.textarea.replaceSelection('[' + (selection == '' ? ((name) ? name : link) : selection) + '](' + link.replace(/^(?![a-z-]+:)/, 'http://') + ')');  
 	},
 
 	close: function () {

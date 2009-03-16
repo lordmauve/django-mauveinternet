@@ -142,8 +142,8 @@ else:
 			self.thumbname = name
 			self.thumbnailer = thumbnailer
 
-		def negotiate_output_format(self, filename):
-			if filename.lower().endswith('.png'):
+		def negotiate_output_format(self, ext):
+			if ext in ['.png', '.gif']:
 				if self.thumbnailer.output_alpha() != Thumbnail.FLATTEN_ALPHA:
 					return 'PNG'
 			else:
@@ -152,15 +152,18 @@ else:
 			return 'JPEG'
 
 		def get_filename(self, filename):
-			ext = self.negotiate_output_format(filename).lower()
-			if ext == 'jpeg':
-				ext = 'jpg'
+			stem, ext = os.path.splitext(filename)
 
-			stem = re.sub(r'.*?([^/]+)\.(jpg|png)$', r'\1', filename, re.I)
-			return '%s.%s.%s' % (stem, self.thumbname, ext)
+			if self.negotiate_output_format(ext) == 'JPEG':
+				t_ext = 'jpg'
+			else:
+				t_ext = 'png'
+
+			return '%s.%s.%s' % (stem, self.thumbname, t_ext)
 
 		def generate_filename(self, filename):
-			return re.sub(r'/[^/]*$', '/', filename) + self.get_filename(filename)
+			dirname, basename = os.path.split(filename)
+			return os.path.join(dirname, self.get_filename(basename))
 
 		def save_thumbnail(self, im_inp):
 			im_out = self.thumbnailer.thumbnail(im_inp)
@@ -210,6 +213,8 @@ else:
 
 			data = StringIO(content.read())
 			im = Image.open(data)	#incremental loader is buggy
+			if im.mode not in ['L', 'RGB', 'RGBA']:
+				im = im.convert('RGBA')
 
 			for thumbnailfile in self.thumbnails:
 				self.storage.delete(thumbnailfile.name)
