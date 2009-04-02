@@ -24,7 +24,7 @@ from django.conf import settings
 from django.db.models import ImageField
 from django.utils.functional import curry
 
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps, ImageDraw, ImageColor
 from PIL import ImageFile as PILImageFile
 
 try:
@@ -405,6 +405,36 @@ class WatermarkedThumbnail(Thumbnail):
 		im.paste(self.watermark, pos, self.watermark)
 		return im
 
+
+class BackgroundColour(Thumbnail):
+	def __init__(self, colour='#fff'):
+		self.col = ImageColor.getrgb(colour)
+
+	def output_alpha(self):
+		return Thumbnail.FLATTEN_ALPHA
+
+	def thumbnail(self, im):
+		background = Image.new('RGB', im.size, self.col)
+		background.paste(im, None, im)
+		return background
+
+
+class ThumbnailStack(Thumbnail):
+	def __init__(self, *args):
+		self.stack = args
+
+	def output_alpha(self):
+		a = Thumbnail.PRESERVE_ALPHA
+		for s in self.stack:
+			sa = s.output_alpha()
+			if sa != Thumbnail.PRESERVE_ALPHA:
+				a = sa
+		return a
+
+	def thumbnail(self, im):
+		for t in self.stack:
+			im = t.thumbnail(im)
+		return im
 
 
 def rebuild_all_thumbnails():
