@@ -52,5 +52,11 @@ from django.core.urlresolvers import reverse
 
 def redirect(name, *args, **kwargs):
 	"""Looks up a view using URL reversing and then redirects to it"""
+	if not args:
+		args = None
+
+	if not kwargs:
+		kwargs = None
+
 	url = reverse(name, args, kwargs)
 	return HttpResponseRedirect(url)
