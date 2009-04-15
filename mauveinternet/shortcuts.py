@@ -5,7 +5,19 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader, Context
 
 def template(request, templ, **kwargs):
-        t = loader.get_template(templ)
+	"""Shortcut for creating a response using a template.
+	This improves on django.shortcuts.render_to_response in several ways:
+
+	* it's shorter to type
+	* it uses the more succinct kwargs syntax to pass variables to templates
+	* it always uses a RequestContext
+	* if you pass a list of template names it selects the first one that exists
+
+	"""
+	if isinstance(templ, list) or isinstance(templ, tuple):
+	        t = loader.select_template(templ)
+	else:
+	        t = loader.get_template(templ)
         c = RequestContext(request, kwargs)
         return HttpResponse(t.render(c), mimetype='text/html; charset=UTF-8')
 
