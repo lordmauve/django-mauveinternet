@@ -197,6 +197,11 @@ else:
 				self.thumbnails.append(tf)
 				setattr(self, k, tf)
 
+		def __getattr__(self, k):
+			if k in self.field.thumbnails:
+				return ThumbnailFile(self, k, self.field.thumbnails[k])
+			raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__, k))
+
 		def save(self, name, content, save=True):
 			super(ImageFileWithThumbnails, self).save(name, content, save=False)
 			self.build_thumbnails(name, self)
@@ -208,15 +213,16 @@ else:
 			self.build_thumbnails(self.name, self)
 
 		def build_thumbnails(self, name, content):
-			if not self.thumbnails:
+			if not self.field.thumbnails:
 				return
-
-			data = StringIO(content.read())
-			im = Image.open(data)	#incremental loader is buggy
+			
+			content.seek(0)
+			im = Image.open(content)	#incremental loader is buggy
 			if im.mode not in ['L', 'RGB', 'RGBA']:
 				im = im.convert('RGBA')
 
-			for thumbnailfile in self.thumbnails:
+			for k in self.field.thumbnails:
+				thumbnailfile = getattr(self, k)
 				self.storage.delete(thumbnailfile.name)
 				thumbnailfile.save_thumbnail(im.copy())	#thumbnail a copy (Image.thumbnail operates in-place)
 		
