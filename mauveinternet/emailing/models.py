@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from django.core.mail import EmailMessage
@@ -27,7 +28,7 @@ class TemplateEmail(models.Model):
 		sending."""
 
 		if context is None:
-			context = Context(args)
+			context = Context(args, autoescape=False)
 		else:
 			context.update(args)
 
@@ -51,7 +52,11 @@ class TemplateEmail(models.Model):
 		except ContextPopException:
 			pass
 
-		return EmailMessage(subject=subject, body=body, from_email=self.sender, to=recipients, bcc=['dan@mauveinternet.co.uk'])
+		if settings.DEBUG:
+			bcc = [i[1] for i in settings.ADMINS]
+		else:
+			bcc = []
+		return EmailMessage(subject=subject, body=body, from_email=self.sender, to=recipients, bcc=bcc)
 
 	def send_to_all(self, args, recipients, context=None):
 		"""Sends an e-mail to each django.contrib.auth.models.User in recipients,

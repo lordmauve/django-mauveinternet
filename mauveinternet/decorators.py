@@ -7,9 +7,9 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-class http_authentication(object):
+class HttpAuthentication(object):
 	def __init__(self, view, realm='Django', log=None):
-		self.view=view
+		self.view = view
 		self.realm=realm
 		self.log = log
 
@@ -37,20 +37,25 @@ class http_authentication(object):
 				auth = request.META[k]
 				break
 		else:
+			self.write_log('No credentials received')
 			return
 
 		mo = re.match(r'Basic (.*)', auth)
 		if not mo:
+			self.write_log('Invalid authentication mechanism')
 			return
 		auth = base64.decodestring(mo.group(1))
 		try:
 			username, password = auth.split(':', 1)
 		except ValueError:
+			self.write_log("Couldn't parse credentials")
 			return
 
 		user = authenticate(username=username, password=password)
 		if user:
+			self.write_log("User %s authenticated" % user)
 			request.user = user
+		self.write_log("Login attempt for %s denied" % username)
 
 	def __call__(self, request, *args, **kwargs):
 		"""Attempts to authenticate a user using HTTP basic authentication.
@@ -65,6 +70,12 @@ class http_authentication(object):
 		return self.__dict__['view'](request, *args, **kwargs)
 
 
+def http_authentication(realm="Django", log=None):
+	def authenticated_view(view):
+		return HttpAuthentication(view, realm, log)
+	return authenticated_view
+	
+
 def not_cacheable(view):
 	def _force_no_caching(*args, **kwargs):
 		response = view(*args, **kwargs)
@@ -72,9 +83,5 @@ def not_cacheable(view):
 		response['Cache-Control'] = 'no-cache, no-store'
 		return response
 	
-	try:
-		import functools
-	except ImportError:
-		return _force_no_caching
-	else:
-		return functools.update_wrapper(_force_no_caching, view)
+	from django.utils.functional import update_wrapper
+	return update_wrapper(_force_no_caching, view)

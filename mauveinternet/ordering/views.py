@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
 from mauveinternet.shortcuts import template
@@ -56,6 +56,7 @@ def view_basket_item(request):
 		raise Http404()
 	
 	return item.item_view(request)
+
 
 @login_required
 def checkout(request):
@@ -130,7 +131,7 @@ def place_order(request):
 @permission_required('ordering.can_view_orders')
 def orders_new(request):
 	Order = get_order_model()
-	return template(request, 'ordering/orders.html', filter='New', orders=Order.objects.filter(status='N'))
+	return template(request, 'ordering/orders.html', filter='New', orders=Order.objects.new())
 
 
 @permission_required('ordering.can_view_orders')
@@ -142,8 +143,10 @@ def orders_all(request):
 @permission_required('ordering.can_view_orders')
 def view_order(request, code):
 	Order = get_order_model()
-	code=int(code)-settings.ORDER_NUMBER_BASE
-	order=get_object_or_404(get_order_model(), id=code)
+	try:
+		order = Order.objects.for_order_number(code)
+	except Order.DoesNotExist:
+		raise Http404()
 
 	if request.method == 'POST' and 'order_status' in request.POST:
 		statusform = OrderStatusForm(request.POST, instance=order)
@@ -163,13 +166,10 @@ def view_order(request, code):
 def view_order_item(request, code):
 	code=int(code)-settings.ORDER_NUMBER_BASE
 	order=get_object_or_404(get_order_model(), id=code)
-
-	if 'item' not in request.GET:
-		return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
-
+	
 	try:
 		item=order.items.get_item(int(request.GET['item']))
-	except ValueError:
+	except (ValueError, KeyError):
 		return HttpResponseRedirect('/admin/orders/%s/'%order.order_number())
 
 	if not hasattr(item, 'item_view'):

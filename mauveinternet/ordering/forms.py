@@ -52,7 +52,12 @@ class AlternatePaymentForm(forms.ModelForm):
 class OrderStatusForm(forms.Form):
 	def __init__(self, *args, **kwargs):
 		kwargs['auto_id'] = 'st_%s'
-		super(OrderStatusForm, self).__init__(*args, **kwargs)
+		if 'instance' in kwargs:
+			instance = kwargs.pop('instance')
+			super(OrderStatusForm, self).__init__(*args, **kwargs)
+			self.fields['order_status'].default = instance.status
+		else:
+			super(OrderStatusForm, self).__init__(*args, **kwargs)
 
 	order_status = forms.ChoiceField(choices=[c for c in get_status_options() if c[0] != 'C'])
 	message = forms.CharField(max_length=255, initial='Status changed by administrator')
