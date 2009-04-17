@@ -5,17 +5,8 @@ from django.conf import settings
 try:
 	from django.dispatch import Signal
 except ImportError:
-	class Signal(object):
-		"""Simple class providing Signal-like functionality"""
-		def __init__(self, providing_args):
-			self.callbacks = []
+	from mauveinternet.signals import Signal
 
-		def connect(self, callback):
-			self.callbacks.append(callback)
-
-		def send(self, sender, **kwargs):
-			for c in self.callbacks:
-				c(sender, **kwargs)		
 
 class ItemNotRepeatable(Exception):
 	"""Indicates that an attempt to add an item to the basket failed because
