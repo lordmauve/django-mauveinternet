@@ -12,10 +12,10 @@ def lookup_link(internal_link):
 	import re
 	mo = re.match(r'internal:(?P<app_label>\w+)\.(?P<model_name>\w+)/(?P<pk>\d+)/?', internal_link)
 	if not mo:
-		raise ValueError('Malformed internal link')
+		raise ValueError(u'Malformed internal link')
 	model = get_model(mo.group('app_label'), mo.group('model_name'))
 	if model not in _link_providers:
-		raise ValueError('Linking to %s is not permitted' % model._meta.verbose_name_plural)
+		raise ValueError(u'Linking to %s is not permitted' % unicode(model._meta.verbose_name_plural))
 	inst = model._default_manager.get(pk=mo.group('pk'))	
 	return inst.get_absolute_url()
 	
