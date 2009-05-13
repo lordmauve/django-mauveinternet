@@ -1,5 +1,26 @@
 import datetime
 
+def add_calendar_months(date, months):
+	"""Adds or subtracts a given number of calendar months from a date or datetime.
+
+	>>> add_calendar_months(datetime.date(2008, 2, 13), 5)
+	datetime.date(2008, 7, 13)
+
+	>>> add_calendar_months(datetime.datetime(2008, 2, 29, 12, 37), 12)
+	datetime.datetime(2009, 3, 1, 12, 37)
+	"""
+
+	dy=months//12
+	if months < 0:
+		dm=months%-12
+	else:
+		dm=months%12
+
+	try:
+		return date.replace(year=date.year+dy, month=date.month+dm)
+	except ValueError:
+		return date.replace(year=date.year+dy, month=date.month+dm+1, day=1)
+
 class Month(object):
 	"""Represents a calendar month to allow for simpler calendar
 	generation."""
