@@ -224,6 +224,20 @@ class Table(object):
 		v=self.values[row][col]
 		self.setValue(col, row, v.value+val)
 		self.normalized=False
+	
+	def filter_rows(self, nums):
+		rs = []
+		labels = []
+		for r in nums:
+			rs.append(self.getRow(r))
+			labels.append(self.getRowLabel(r))
+		t = Table(self.cols, len(nums))
+		t.values = rs
+		t.rowlabels = labels
+		t.columnlabels = self.columnlabels[:]
+		t.columnaxislabel = self.columnaxislabel
+		t.rowaxislabel = self.rowaxislabel
+		return t
 
 	def getRow(self, row):
 		return self.values[row][:]

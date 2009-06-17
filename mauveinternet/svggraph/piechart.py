@@ -5,9 +5,9 @@ import re
 import os
 import cStringIO
 
-from billing.management.svggraph.svg import xmlentities, Path, Graph
-from billing.management.svggraph.table import Table
-from billing.management.svggraph.colourscheme import *
+from svg import xmlentities, Path, Graph
+from table import Table
+from colourscheme import *
 
 class AbstractPieChart(object):
 	class PieSlice(object):

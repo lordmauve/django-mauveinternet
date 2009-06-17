@@ -85,26 +85,57 @@ class Month(object):
 		return Month(self.year, self.month-1)
 
 	def first_day(self):
-		"""The first day of the calendar month"""
+		"""The first day of the calendar month.
+
+		>>> Month(2009, 3).first_day()
+		datetime.date(2009, 3, 1)
+		"""
 		return datetime.date(self.year, self.month, 1)
 
 	def last_day(self):
+		"""The last day of the calendar month.
+
+		>>> Month(2009, 3).last_day()
+		datetime.date(2009, 3, 31)
+		>>> Month(2009, 2).last_day()
+		datetime.date(2009, 2, 28)
+		>>> Month(2008, 2).last_day()
+		datetime.date(2008, 2, 29)
+		>>> Month(2000, 2).last_day()
+		datetime.date(2000, 2, 29)
+		>>> Month(2100, 2).last_day()
+		datetime.date(2100, 2, 28)
+		"""
 		return datetime.date(self.year, self.month, len(self))
 
 	def days(self):
 		return [datetime.date(self.year, self.month, i) for i in range(1, len(self) + 1)]
 
+	def month_name(self):
+		return self.first_day().strftime('%B')
+
 	def name(self):
 		return self.first_day().strftime('%B %Y')
 
 	def add(self, months):
-		dy = months//12
-		if months < 0:
-			dm = months % -12
-		else:
-			dm = months % 12
+		"""Adds or subtracts a given number of months.
 
-		return Month(year=(self.year + dy), month=(self.month + dm))
+		>>> Month(2009, 3).add(-15)
+		Month(2007, 12)
+		>>> Month(2009, 3).add(5)
+		Month(2009, 8)
+		>>> Month(2009, 3).add(25)
+		Month(2011, 4)
+		>>> Month(2009, 3).add(-14)
+		Month(2008, 1)
+		"""
+		# January is 1, not 0, so we have to subtract 1 before calculating
+		ms = (self.month - 1) + months
+		dy = ms // 12
+		# and add it back on afterwards
+		m = (ms % 12) + 1
+
+		return Month(year=(self.year + dy), month=m)
 
 	def as_html(self):
 
@@ -127,3 +158,7 @@ class Month(object):
 	def day_as_html(self, day):
 		return mark_safe('<span class="day">%d</span>' % day.day)
 
+
+if __name__ == '__main__':
+	import doctest
+	doctest.testmod()

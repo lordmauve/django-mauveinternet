@@ -33,12 +33,16 @@ class Color(object):
 
 class ColorScheme(object):
 	scheme=['#ff0000']
+	axes = '#000000'
 
 	def __init__(self, table):
 		self.table=table
 	
 	def getColor(self, row, col):
 		return self[row]
+
+	def getAxisColor(self):
+		return Color.parseHex(self.axes)
 
 	def getColorForTableValue(self, value):
 		return self.getColor(value.row, value.col)

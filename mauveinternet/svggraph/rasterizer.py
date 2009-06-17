@@ -1,45 +1,88 @@
 #!/usr/bin/python
 
 import os
-import popen2
-import select
+import subprocess
+import tempfile
+
+from cStringIO import StringIO
+
 
 class GraphRasterizer(object):
 	def __init__(self, graph):
-		self.graph=graph
+		self.graph = graph
 
-	def asPNG(self):
-		return self.__rasterize('image/png', '.png')
+	def graph_as_str(self):
+		s = StringIO()
+		self.graph.render(s)
+		return s.getvalue()
 
-	def asJPEG(self):
-		return self.__rasterize('image/jpeg', '.jpg')
-		
-	def __rasterize(self, mimetype, ext):
-		tmpfile=os.tempnam()
-		f=open(tmpfile, 'w')
+	def write_tempfile(self):
+		fd, fname = tempfile.mkstemp(suffix='.svg')
+		f = os.fdopen(fd, 'w')
 		self.graph.render(f)
 		f.close()
-		
-		outtmpfile=tmpfile+ext
+		self.fname = fname
+		return fname
 
-		proc=popen2.Popen4('/usr/bin/rasterizer -scriptSecurityOff -m %s %s'%(mimetype, tmpfile))
-		self.graph.render(proc.tochild)
-		proc.tochild.close()
-		out=''
-		while proc.poll() == -1:
-			i, o, s=select.select([proc.fromchild], [], [], 100)
-			if proc.fromchild in i:
-				out+=proc.fromchild.read()
+	def delete_tempfile(self):
+		try:
+			os.unlink(self.fname)
+		except (AttributeError, OSError):
+			pass
 
-		out+=proc.fromchild.read()
+	def asPNG(self):
+		tmpfile = self.write_tempfile()
+		image = self.rasterize('image/png', tmpfile)
+		self.delete_tempfile()
+		return image
+
+	def asJPEG(self):
+		tmpfile = self.write_tempfile()
+		image = self.rasterize('image/jpeg', tmpfile)
+		self.delete_tempfile()
+		return image
+
+
+class BatikRastizer(GraphRasterizer):
+	def rasterize(self, mimetype, infile):
+		if mimetype == 'image/png':
+			outtmpfile = infile + '.png'
+		else:
+			outtmpfile = infile + '.jpg'
+
+		proc = subprocess.Popen(['/usr/bin/rasterizer', '-scriptSecurityOff', '-m', mimetype, infile], close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		stdout, stderr = proc.communicate()
 		
 		try:
-			f=open(outtmpfile, 'rb')
-			image=f.read()
+			f = open(outtmpfile, 'rb')
+			image = f.read()
 			f.close()
 		except IOError:
-			return out
+			return stdout
 
-		os.unlink(tmpfile)
+		os.unlink(outtmpfile)
+		return image
+
+
+class RSVGRasterizer(GraphRasterizer):
+	def rasterize(self, mimetype, infile):
+		if mimetype == 'image/png':
+			format = 'png'
+		else:
+			format = 'jpeg'
+
+		outfd, outtmpfile = tempfile.mkstemp(suffix='.' + format)
+		os.close(outfd)
+		
+		proc = subprocess.Popen(['/usr/bin/rsvg', '-f', format, infile, outtmpfile], close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		stdout, stderr = proc.communicate()
+
+		try:
+			f = open(outtmpfile, 'rb')
+			image = f.read()
+			f.close()
+		except IOError:
+			return stdout
+
 		os.unlink(outtmpfile)
 		return image
