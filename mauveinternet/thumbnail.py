@@ -143,7 +143,7 @@ else:
 			self.thumbnailer = thumbnailer
 
 		def negotiate_output_format(self, ext):
-			if ext in ['.png', '.gif']:
+			if ext.lower() in ['.png', '.gif']:
 				if self.thumbnailer.output_alpha() != Thumbnail.FLATTEN_ALPHA:
 					return 'PNG'
 			else:
