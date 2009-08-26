@@ -72,3 +72,24 @@ def redirect(name, *args, **kwargs):
 
 	url = reverse(name, args, kwargs)
 	return HttpResponseRedirect(url)
+
+
+def updated(request, message, next=None, allow_continue=True):
+	"""Redirects the user, with the message provided.
+
+	This is a common action following views that have saved form data, hence the name updated() to
+	reflect the notion of informing a user of the save.
+
+	Additionally, this handles save versus save and continue editing. By default, redirects users
+	back to the current URL, allowing them to continue editing. If the 'next' argument is
+	provided, this URL is redirected to instead of the request URL, unless the form data contains
+	a variable named 'continue'. For image buttons, this is handled in a way compatible with
+	Internet Explorer.
+
+	'allow_continue' disables this behaviour, forcing a redirect to 'next'.
+	"""
+	request.user.message_set.create(message=message)
+
+	if next and not allow_continue or ('continue' not in request.POST and 'continue.x' not in request.POST):
+		return HttpResponseRedirect(next)
+	return HttpResponseRedirect(request.path)

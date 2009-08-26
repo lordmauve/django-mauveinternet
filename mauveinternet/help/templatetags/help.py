@@ -1,3 +1,5 @@
+import re
+
 from django.template import Node, Library, resolve_variable, TemplateSyntaxError
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -38,6 +40,7 @@ class FormHelpNode(InlineHelpNode):
 	def render(self, context):
 		field = resolve_variable(self.formfield_variable, context)
 		slug = '%s-%s' % (field.form.__class__.__name__.lower(), field.name.lower())
+		slug = re.sub(r'\d+', '', slug)
 		return self.get_help(slug)
 
 
