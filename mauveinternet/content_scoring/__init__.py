@@ -34,6 +34,9 @@ class StringAttributeScorer(object):
 		
 		return min(s, self.target)/float(self.target) * self.max_score
 
+	def get_max_score(self):
+		return self.max_score
+
 
 class HasAttributeScorer(object):
 	def __init__(self, score):
@@ -43,6 +46,9 @@ class HasAttributeScorer(object):
 		if getattr(inst, self.name, None):
 			return self.score
 		return 0
+
+	def get_max_score(self):
+		return self.score
 
 
 class CollectionLengthScorer(object):
@@ -84,6 +90,10 @@ class CollectionLengthScorer(object):
 		except IndexError:
 			return self.scores[-1]
 
+	def get_max_score(self):
+		return max(self.scores)
+
+
 class DeclarativeScoreSystem(type):
 	"""Metaclass that allows an ObjectScorer subclass to have its list of
 	scorers defined in a Python class definition rather than by assigning
@@ -108,7 +118,10 @@ class ObjectScorer(object):
 
 	def get_score(self, inst):
 		score = sum([s.get_score(inst) for s in self.scorers])
-		return int(score + self.other_scores(inst, score) + 0.5)
+		max_score = sum([s.get_max_score() for s in self.scorers])
+		other_scores, max_other_scores = self.other_scores(inst, score) 
+		return int(float(score + other_scores) * 100.0/float(max_score + max_other_scores) + 0.5)
 
 	def other_scores(self, inst, score):
-		return 0
+		"""Returns a tuple (score, max_score) representing non-declarative scores"""
+		return (0, 0)
