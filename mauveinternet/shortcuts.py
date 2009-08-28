@@ -90,6 +90,6 @@ def updated(request, message, next=None, allow_continue=True):
 	"""
 	request.user.message_set.create(message=message)
 
-	if next and not allow_continue or ('continue' not in request.POST and 'continue.x' not in request.POST):
+	if next and (not allow_continue or ('continue' not in request.POST and 'continue.x' not in request.POST)):
 		return HttpResponseRedirect(next)
 	return HttpResponseRedirect(request.path)
