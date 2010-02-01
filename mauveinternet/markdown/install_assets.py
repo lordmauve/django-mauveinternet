@@ -36,7 +36,10 @@ def relpath(path, start=None):
 def install(target):
 	for d in COMPONENTS:
 		print d
-		lpath = os.path.join(target, d, 'markdown')
+		tpath = os.path.join(target, d)
+		if not os.path.exists(tpath):
+			os.mkdir(tpath)
+		lpath = os.path.join(tpath, 'markdown')
 		dpath = os.path.join(MARKDOWN_PATH, d)
 		os.symlink(relpath(dpath, start=os.path.dirname(lpath)), lpath)
 

@@ -1,23 +1,20 @@
 from django.conf import settings
 
-class MessageWriter(object):
-	def __init__(self, session):
-		self.session=session
-	
-	def __call__(self, message):
-		try:
-			self.session['messages'].append(message)
-		except KeyError:
-			self.session['messages']=[message]
 
 class MessageMiddleware(object):
-	"""Guerilla patches request.user. to add a write_message function.
+	"""Monkey-patches request.user to add a write_message() method.
 
 	The corresponding Request Context Processor is
 	mauveinternet.context_processors.messages
 	"""
 	def process_request(self, request):
-		request.user.write_message=MessageWriter(request.session)
+		session = request.session
+		def write_message(message):
+			try:
+				session['messages'].append(message)
+			except KeyError:
+				session['messages'] = [message]
+		request.user.write_message = write_message
 		
 
 class ContentTypeMiddleware(object):

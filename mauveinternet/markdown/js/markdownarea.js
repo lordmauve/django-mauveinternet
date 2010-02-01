@@ -6,12 +6,20 @@ Event.observe(document, 'dom:loaded', function () {
 		outer.appendChild(t);	//move t
 		var converter = new Showdown.converter;
 		var preview = new Element('div', {'class': 'markdown_preview'}).update(converter.makeHtml(t.getValue()));
+		preview.setStyle({width: (t.offsetWidth - 32) + 'px'});
+		if (t.offsetHeight < 180)
+			preview.setStyle({height: t.offsetHeight + 'px'});
 		t.insert({before: preview});
-		preview.show();
+
+		if (/show_preview=true/.match(document.cookie))
+			preview.show();
+		else
+			preview.hide();
 
 		var area = new Control.TextArea(t);
 		var toolbar = new Control.TextArea.ToolBar(area);  
 		toolbar.container.className = 'markdown_toolbar';
+		toolbar.container.setStyle({width: (t.offsetWidth - 6) + 'px'});
 		t.setStyle({borderTop: 'none'});
 
 		update_preview = function(value){  
@@ -119,9 +127,10 @@ Event.observe(document, 'dom:loaded', function () {
 			title: 'Ordered List'
 		});
 
-		toolbar.addButton('Hide Preview', function () {
+		toolbar.addButton((preview.visible()) ? 'Hide Preview' : 'Show Preview', function () {
 			preview.toggle();
 			toolbar.container.select('.markdown_toggle_preview')[0].update(preview.visible() ? 'Hide Preview' : 'Show Preview');
+			document.cookie = 'show_preview=' + ((preview.visible()) ? 'true' : 'false') + ';max-age=' + (60*60*24*365);
 		} , {
 			className: 'markdown_toggle_preview'
 		}); 

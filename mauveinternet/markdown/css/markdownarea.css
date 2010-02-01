@@ -6,9 +6,10 @@ textarea.markdown {
 	font-family: monospace;
 	font-size: 100%;
 	margin-top: 0;
+	border: solid silver 1px;
 }
 
-.markdown_container {
+.change-form .markdown_container {
 	margin-left: 10em;
 }
 
@@ -23,6 +24,8 @@ form ul.markdown_toolbar {
 	width: 612px;
 	height: 18px;
 	position: relative;
+
+	font: menu;
 }
 
 form ul.markdown_toolbar li {
@@ -46,6 +49,8 @@ ul.markdown_toolbar li a {
 	padding-left: 18px;
 	background-repeat: no-repeat;
 	background-position: top left;
+
+	text-decoration: none;
 }
 
 ul.markdown_toolbar li a:hover {
@@ -136,4 +141,8 @@ form .markdown_preview ol {
 
 #link-dialog .buttons {
 	text-align: right;
+}
+
+#link-dialog p {
+	text-align: left;
 }

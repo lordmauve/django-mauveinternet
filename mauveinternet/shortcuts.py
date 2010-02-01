@@ -88,7 +88,10 @@ def updated(request, message, next=None, allow_continue=True):
 
 	'allow_continue' disables this behaviour, forcing a redirect to 'next'.
 	"""
-	request.user.message_set.create(message=message)
+	if hasattr(request.user, 'write_message'):
+		request.user.write_message(message)
+	else:
+		request.user.message_set.create(message=message)
 
 	if next and (not allow_continue or ('continue' not in request.POST and 'continue.x' not in request.POST)):
 		return HttpResponseRedirect(next)
