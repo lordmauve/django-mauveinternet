@@ -70,7 +70,7 @@ def redirect(name, *args, **kwargs):
 	if not kwargs:
 		kwargs = None
 
-	url = reverse(name, args, kwargs)
+	url = reverse(name, args=args, kwargs=kwargs)
 	return HttpResponseRedirect(url)
 
 
