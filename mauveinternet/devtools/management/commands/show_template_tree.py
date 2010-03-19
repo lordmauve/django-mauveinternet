@@ -59,7 +59,7 @@ class InheritanceGraph(object):
 		
 		return """digraph template_tree {
 	graph [rankdir=LR];
-	node [shape=box,fontname="Arial",fontsize=10,style="filled",fillcolor="#EEEEFF",color="#8888CC"];
+	node [shape=box,fontname="Arial",fontsize=10,style="filled",fillcolor="#EEEEFF",color="#8888CC",height=0.3];
 	%s
 	%s
 	edge [color=blue];

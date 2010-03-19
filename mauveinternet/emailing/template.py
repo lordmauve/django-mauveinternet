@@ -27,7 +27,7 @@ class BaseEmail(object):
 		"""Generate a tuple (subject, body, from) from the template using the context given.
 		`from` may be None, in which case the Django DEFAULT_FROM_EMAIL setting will be used."""
 
-	def to_email(self, recipients, args={}, context=None, bcc=[]):
+	def to_email(self, recipients, args={}, context=None, bcc=[], headers={}):
 		if context is None:
 			context = Context({}, autoescape=False)
 
@@ -40,16 +40,26 @@ class BaseEmail(object):
 
                 from_email = from_email or settings.DEFAULT_FROM_EMAIL
 
-		return EmailMessage(subject=subject, body=body, from_email=from_email, to=recipients, bcc=bcc)
+		return EmailMessage(subject=subject, body=body, from_email=from_email, to=recipients, bcc=bcc, headers=headers)
 
 
-	def send_to(self, recipients, args={}, context=None, bcc=[], attachments=[]):
-                msg = self.to_email(recipients, args, context, bcc)
+	def send_to(self, recipients, args={}, context=None, bcc=[], headers={}, attachments=[]):
+		msg = self.to_email(recipients, args, context, bcc, headers=headers)
 		for a in attachments:
-                	msg.attach_file(a)
-		msg.send()
+        	msg.attach_file(a)
+		self.send(msg)
 
-	def send_to_all(self, recipient_tuples, args={}, context=None, bcc=[], attachments=[]):
+	def send(self, msg):
+		if getattr(settings, 'LIVE_SERVER', True):
+			msg.send()
+		else:
+			import mailbox
+			mb = mailbox.mbox('debug_emails.mbox', create=True)
+			mb.lock()
+			mb.add(msg.message())
+			mb.close()
+
+	def send_to_all(self, recipient_tuples, args={}, context=None, bcc=[], attachments=[], headers={}):
 		"""For each `(email, recipient)` in recipient_tuples, generate and send an e-mail
 		to `email` with `recipient` in the template context."""
 
@@ -57,7 +67,7 @@ class BaseEmail(object):
 			rargs = {}
 			rargs.update(args)
 			rargs['recipient'] = recipient
-			self.send_to([email], rargs, context=context, bcc=bcc, attachments=attachments)
+			self.send_to([email], rargs, context=context, bcc=bcc, headers=headers, attachments=attachments)
 
 
 class TemplateFileEmail(BaseEmail):
