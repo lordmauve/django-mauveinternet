@@ -46,7 +46,7 @@ class BaseEmail(object):
 	def send_to(self, recipients, args={}, context=None, bcc=[], headers={}, attachments=[]):
 		msg = self.to_email(recipients, args, context, bcc, headers=headers)
 		for a in attachments:
-        	msg.attach_file(a)
+			msg.attach_file(a)
 		self.send(msg)
 
 	def send(self, msg):
