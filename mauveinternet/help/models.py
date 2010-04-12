@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 
+from mauveinternet.markdown.util import MarkdownTextField
+
 class HelpTextManager(models.Manager):
 	def get_query_set(self):
 		return super(HelpTextManager, self).get_query_set().exclude(description='')
@@ -8,7 +10,7 @@ class HelpTextManager(models.Manager):
 
 class InlineHelp(models.Model):
 	slug = models.SlugField()
-	description = models.TextField(blank=True, help_text="This field may be formatted with Markdown.")
+	description = MarkdownTextField(blank=True, help_text="This field may be formatted with Markdown.")
 
 	objects = models.Manager()
 	texts = HelpTextManager()
