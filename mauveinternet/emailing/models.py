@@ -39,5 +39,7 @@ class TemplateEmail(models.Model, BaseEmail):
 		"""Shortcut method for retrieving a TemplateEmail from the database, using the defaults given if it doesn't exist.
 		Also places the default into the database for later customisation."""
 
-		email, created = TemplateEmail.objects.get_or_create(slug=slug, defaults={'sender': sender, 'subject': subject, 'body': body})
-		return email
+		try:
+			return TemplateEmail.objects.get(slug=slug)
+		except TemplateEmail.DoesNotExist:
+			return TemplateEmail(slug=slug, sender=sender, subject=subject, body=body)
