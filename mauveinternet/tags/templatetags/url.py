@@ -29,6 +29,6 @@ def absolute_url(parser, token):
 
 
 @register.filter
-def absolutize(url):
-	return 'http://' + Site.objects.get_current().domain + url
+def absolutize(url, scheme='http'):
+	return scheme + '://' + Site.objects.get_current().domain + url
 	
