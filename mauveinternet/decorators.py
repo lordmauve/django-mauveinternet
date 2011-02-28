@@ -70,7 +70,7 @@ class HttpAuthentication(object):
 		return self.__dict__['view'](request, *args, **kwargs)
 
 
-def http_authentication(realm="Django", log=None):
+def http_authentication(realm, log=None):
 	def authenticated_view(view):
 		return HttpAuthentication(view, realm, log)
 	return authenticated_view
