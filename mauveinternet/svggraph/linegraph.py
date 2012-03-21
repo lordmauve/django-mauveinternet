@@ -6,40 +6,46 @@ import os
 import cStringIO
 
 from svg import xmlentities, Path, Graph
+from axes import LineAxes
 from table import Table
 from colourscheme import *
 
 LEGEND_ROW_HEIGHT = 20
 SCALE = 0.70 # this is the proportion of the vertical space to use
 
+
 class LineGraph(Graph):
-	def __init__(self, table, colors=None, width=630, height=300, legend=True, shade_under=True, data_points=True):
+	def __init__(self, table, colors=None, width=630, height=300, legend=True, shade_under=True, data_points=True, axes=None):
 		Graph.__init__(self, table, width, height)
 
 		if colors is None:
-			self.colors=DefaultColorScheme()
+			self.colors = DefaultColorScheme(table)
 		else:
 			if issubclass(colors, ColorScheme):
 				self.colors = colors(table)
 			else:
 				self.colors = colors
 
+		self.axes = axes or LineAxes()
+
 		self.legend = legend
 		self.shade_under = shade_under
 		self.data_points = data_points
 
-		self.colwidth=(self.width-10)/(self.table.cols-1)
+		self.colwidth = (self.width-10)/float(self.table.cols-1)
 
 	def legend_height(self):
+		"""Compute the amount of height to allocate to the legend"""
 		if self.legend:
 			return self.table.rows * LEGEND_ROW_HEIGHT + 0.5
 		return 0
 
 	def render(self, stream):
+		"""Render the graph to the file-like object stream"""
 		self.svgHeader(stream)
+		self.renderAxes(stream)
 		for r in xrange(self.table.rows):
 			self.renderRow(stream, r)
-		self.renderAxes(stream)
 		if self.legend:
 			self.renderLegend(stream)
 		self.svgFooter(stream)
@@ -50,13 +56,8 @@ class LineGraph(Graph):
 		
 	def renderAxes(self, stream):
 		x, y, w, h = self.graph_dims()
-		p = Path()
-		p.to(x, y)
-		p.to(x, y+h)
-		p.to(x + w, y+h)
-		p.setClosed(False)
-		stream.write('<path d="%s" stroke="%s" stroke-width="1" fill="none"/>\n'% (p, self.colors.getAxisColor()))
-		
+		self.axes.render(stream, x, y, w, h, interval=h/4.0)
+
 		#Vertical labelling
 		#stream.write('<text text-anchor="end" transform="translate(14.5, %.2f) rotate(270)">%s</text>'%(h + 15, xmlentities(self.table.getColumnLabel(0))))
 		#stream.write('<text text-anchor="end" transform="translate(%.2f, %.2f) rotate(270)">%s</text>'%(x + 5 + self.colwidth*(self.table.cols-1), h + 15, xmlentities(self.table.getColumnLabel(self.table.cols-1))))
@@ -94,9 +95,11 @@ class LineGraph(Graph):
 			p.to(cx, y + h)
 			p.to(x, y + h)
 			stream.write('<path d="%s" fill="%s" fill-opacity="0.1"/>\n'%(p, self.colors[r]))
-		if cmax and max:
-			v = self.table.getValue(cmax, r)
-			stream.write('<text x="%0.1f" y="%0.1f" text-anchor="middle" style="fill: %s">%s</text>'%(x + self.colwidth * cmax, h - 4 - float(v) * h * SCALE, self.colors[r], str(v)))
+
+# Don't do this - we need an annotation system instead
+#		if cmax and max:
+#			v = self.table.getValue(cmax, r)
+#			stream.write('<text x="%0.1f" y="%0.1f" text-anchor="middle" style="fill: %s">%s</text>'%(x + self.colwidth * cmax, h - 4 - float(v) * h * SCALE, self.colors[r], str(v)))
 
 
 class InterpolatingLineGraph(LineGraph):
