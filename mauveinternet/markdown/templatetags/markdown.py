@@ -37,14 +37,21 @@ def markdown(value, arg=''):
 	import re
 	from mauveinternet.markdown import markdown
 
-	extensions = [e for e in arg.split(",") if e]
-	if len(extensions) > 0 and extensions[0] == "safe":
-		extensions = extensions[1:]
+	extensions = set([e for e in arg.split(",") if e])
+	if 'safe' in extensions:
+		extensions.remove('safe')
 		safe_mode = True
 	else:
 		safe_mode = False
+
+	min_h = 3
+	if 'minh=2' in extensions:
+		min_h = 2
+	if 'minh=1' in extensions:
+		min_h = 1
 	html = markdown.markdown(force_unicode(value), extensions, safe_mode=safe_mode)
-	html = re.sub(r'<(/?)h([12])(\s.*?)?>', lambda mo: '<%sh%d%s>' % (mo.group(1), min(6, int(mo.group(2))+2), mo.group(3) or ''), html)	
+	if min_h > 1:
+		html = re.sub(r'<(/?)h([1-6])(\s.*?)?>', lambda mo: '<%sh%d%s>' % (mo.group(1), min(6, int(mo.group(2)) + min_h - 1), mo.group(3) or ''), html)	
 	html = re.sub(r'(<a\s+[^>]*)href="(internal:.*?)"', lambda mo: '%shref="%s"' % (mo.group(1), lookup_link(mo.group(2))), html) 
 	return mark_safe(html)
 markdown.is_safe = True
