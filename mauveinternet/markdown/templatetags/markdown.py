@@ -1,5 +1,5 @@
+from django.apps import apps
 from django.conf import settings
-from django.db.models.loading import get_model
 from django import template
 from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
@@ -13,12 +13,12 @@ def lookup_link(internal_link):
 	mo = re.match(r'internal:(?P<app_label>\w+)\.(?P<model_name>\w+)/(?P<pk>\d+)/?', internal_link)
 	if not mo:
 		raise ValueError(u'Malformed internal link')
-	model = get_model(mo.group('app_label'), mo.group('model_name'))
+	model = apps.get_model(mo.group('app_label'), mo.group('model_name'))
 	if model not in _link_providers:
 		raise ValueError(u'Linking to %s is not permitted' % unicode(model._meta.verbose_name_plural))
-	inst = model._default_manager.get(pk=mo.group('pk'))	
+	inst = model._default_manager.get(pk=mo.group('pk'))
 	return inst.get_absolute_url()
-	
+
 
 @register.filter
 def markdown(value, arg=''):
@@ -51,7 +51,7 @@ def markdown(value, arg=''):
 		min_h = 1
 	html = markdown.markdown(force_unicode(value), extensions, safe_mode=safe_mode)
 	if min_h > 1:
-		html = re.sub(r'<(/?)h([1-6])(\s.*?)?>', lambda mo: '<%sh%d%s>' % (mo.group(1), min(6, int(mo.group(2)) + min_h - 1), mo.group(3) or ''), html)	
-	html = re.sub(r'(<a\s+[^>]*)href="(internal:.*?)"', lambda mo: '%shref="%s"' % (mo.group(1), lookup_link(mo.group(2))), html) 
+		html = re.sub(r'<(/?)h([1-6])(\s.*?)?>', lambda mo: '<%sh%d%s>' % (mo.group(1), min(6, int(mo.group(2)) + min_h - 1), mo.group(3) or ''), html)
+	html = re.sub(r'(<a\s+[^>]*)href="(internal:.*?)"', lambda mo: '%shref="%s"' % (mo.group(1), lookup_link(mo.group(2))), html)
 	return mark_safe(html)
 markdown.is_safe = True
