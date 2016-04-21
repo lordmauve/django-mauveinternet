@@ -36,8 +36,7 @@ class TemplateEmail(models.Model, BaseEmail):
 
 	@staticmethod
 	def get(slug, sender, subject, body):
-		"""Shortcut method for retrieving a TemplateEmail from the database, using the defaults given if it doesn't exist.
-		Also places the default into the database for later customisation."""
+		"""Shortcut method for retrieving a TemplateEmail from the database, using the defaults given if it doesn't exist."""
 
 		try:
 			return TemplateEmail.objects.get(slug=slug)

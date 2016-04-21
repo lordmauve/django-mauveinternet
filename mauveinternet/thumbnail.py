@@ -198,7 +198,7 @@ else:
 				setattr(self, k, tf)
 
 		def __getattr__(self, k):
-			if k in self.field.thumbnails:
+			if k in object.__getattr__(self, 'field').thumbnails:
 				return ThumbnailFile(self, k, self.field.thumbnails[k])
 			raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__, k))
 
@@ -216,7 +216,7 @@ else:
 			if not self.field.thumbnails:
 				return
 			
-			content.seek(0)
+			content.open(mode='r')
 			im = Image.open(content)	#incremental loader is buggy
 			if im.mode not in ['L', 'RGB', 'RGBA']:
 				im = im.convert('RGBA')
