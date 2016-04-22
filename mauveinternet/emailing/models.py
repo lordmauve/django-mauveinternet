@@ -7,38 +7,38 @@ from django.template import Template, Context, RequestContext, ContextPopExcepti
 from template import BaseEmail
 
 class TemplateEmail(models.Model, BaseEmail):
-	slug = models.SlugField('Internal name for referencing this e-mail', editable=False)
-	sender = models.EmailField()
-	
-	subject = models.CharField("Django template for generating the subject", max_length=255)
-	body = models.TextField("Django template for generating the body")
+    slug = models.SlugField('Internal name for referencing this e-mail', editable=False)
+    sender = models.EmailField()
 
-	def __unicode__(self):
-		return self.slug
+    subject = models.CharField("Django template for generating the subject", max_length=255)
+    body = models.TextField("Django template for generating the body")
 
-	class Admin:
-		list_display = ['slug', 'sender', 'subject']
+    def __unicode__(self):
+        return self.slug
 
-	class Meta:
-		verbose_name = u'e-mail template'
+    class Admin:
+        list_display = ['slug', 'sender', 'subject']
 
-	def get_subject_template(self):
-		return Template(self.subject)
+    class Meta:
+        verbose_name = u'e-mail template'
 
-	def get_body_template(self):
-		return Template(self.body)
+    def get_subject_template(self):
+        return Template(self.subject)
 
-	def generate(self, context):
-		subject = self.get_subject_template().render(context)
-		body = self.get_body_template().render(context)
+    def get_body_template(self):
+        return Template(self.body)
 
-		return subject, body, self.sender
+    def generate(self, context):
+        subject = self.get_subject_template().render(context)
+        body = self.get_body_template().render(context)
 
-	@staticmethod
-	def get(slug, sender, subject, body):
-		"""Shortcut method for retrieving a TemplateEmail from the database, using the defaults given if it doesn't exist."""
+        return subject, body, self.sender
 
-		try:
-			return TemplateEmail.objects.get(slug=slug)
-		except TemplateEmail.DoesNotExist:
-			return TemplateEmail(slug=slug, sender=sender, subject=subject, body=body)
+    @staticmethod
+    def get(slug, sender, subject, body):
+        """Shortcut method for retrieving a TemplateEmail from the database, using the defaults given if it doesn't exist."""
+
+        try:
+            return TemplateEmail.objects.get(slug=slug)
+        except TemplateEmail.DoesNotExist:
+            return TemplateEmail(slug=slug, sender=sender, subject=subject, body=body)

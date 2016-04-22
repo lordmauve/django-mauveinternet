@@ -8,20 +8,20 @@ register = Library()
 
 @register.filter
 def obfuscate_email(email):
-	s = StringIO()
-	for c in email:	
-		s.write('&#%d;' % ord(c))
-	return mark_safe(s.getvalue())
+    s = StringIO()
+    for c in email:
+        s.write('&#%d;' % ord(c))
+    return mark_safe(s.getvalue())
 
 
 @register.filter
 def split_email(email):
-        replacements = {
-                '.': 'dot',
-                '@': 'at',
-                '_': 'underscore',
-                '-': 'hyphen'
-        }
-        for char, repl in replacements.items():
-                s = s.replace(char, u' %s ' % repl)
-        return s
+    replacements = {
+            '.': 'dot',
+            '@': 'at',
+            '_': 'underscore',
+            '-': 'hyphen'
+    }
+    for char, repl in replacements.items():
+        s = s.replace(char, u' %s ' % repl)
+    return s

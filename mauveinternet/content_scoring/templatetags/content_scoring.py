@@ -9,6 +9,5 @@ register.filter(content_score)
 
 @register.filter
 def content_score_check(text, arg):
-	threshold = float(arg)
-	return content_score(text) > threshold
-
+    threshold = float(arg)
+    return content_score(text) > threshold

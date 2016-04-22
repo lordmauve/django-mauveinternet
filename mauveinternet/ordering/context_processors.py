@@ -1,12 +1,12 @@
 def basket(request):
-	variables={}
+    variables={}
 
-	if 'BASKET' in request.session:
-		basket=request.session['BASKET']
-		variables['basket']=request.session['BASKET']
+    if 'BASKET' in request.session:
+        basket=request.session['BASKET']
+        variables['basket']=request.session['BASKET']
 
-	if 'messages' in request.session:
-		variables['messages']=request.session['messages']
-		del(request.session['messages'])
+    if 'messages' in request.session:
+        variables['messages']=request.session['messages']
+        del(request.session['messages'])
 
-	return variables
+    return variables

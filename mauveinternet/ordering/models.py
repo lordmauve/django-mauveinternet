@@ -15,50 +15,50 @@ from mauveinternet.ordering.orderbase import OrderBase, STATUS_OPTIONS
 from mauveinternet.ordering.lockbox import Lockable
 
 class Order(models.Model, OrderBase):
-	status = models.CharField(max_length=1, choices=STATUS_OPTIONS, default='N')
-	
-	customer = models.ForeignKey(User)
-	date_placed = models.DateTimeField(auto_now_add=True)
+        status = models.CharField(max_length=1, choices=STATUS_OPTIONS, default='N')
 
-	vat_number = models.CharField(max_length=24, blank=True)
+        customer = models.ForeignKey(User)
+        date_placed = models.DateTimeField(auto_now_add=True)
 
-	billing_address = models.TextField()
-	billing_postcode = models.CharField('Postcode', max_length=10)
+        vat_number = models.CharField(max_length=24, blank=True)
 
-	items = PickleField(OrderItemList)
+        billing_address = models.TextField()
+        billing_postcode = models.CharField('Postcode', max_length=10)
 
-	total = models.DecimalField(editable=False, max_digits=10, decimal_places=2)
+        items = PickleField(OrderItemList)
+
+        total = models.DecimalField(editable=False, max_digits=10, decimal_places=2)
 
 """
 
 def get_order_model():
-	model_class = get_model(*settings.ORDER_MODEL.split('.'))
-	if model_class is None:
-		raise ImproperlyConfigured("No ORDER_MODEL found for '%s'" % settings.ORDER_MODEL)
-	return model_class
+    model_class = get_model(*settings.ORDER_MODEL.split('.'))
+    if model_class is None:
+        raise ImproperlyConfigured("No ORDER_MODEL found for '%s'" % settings.ORDER_MODEL)
+    return model_class
 
 
 def get_status_options():
-	return get_order_model()._meta.get_field('status').choices
+    return get_order_model()._meta.get_field('status').choices
 
 
 class OrderStatusChange(models.Model):
-	order = models.ForeignKey(get_order_model())
-	date = models.DateTimeField(auto_now_add=True)
-	previous_status = models.CharField(max_length=1, choices=get_status_options() + [('-', '-')])
-	message = models.CharField(max_length=255)
+    order = models.ForeignKey(get_order_model())
+    date = models.DateTimeField(auto_now_add=True)
+    previous_status = models.CharField(max_length=1, choices=get_status_options() + [('-', '-')])
+    message = models.CharField(max_length=255)
 
-	def new_status(self):
-		try:
-			return self.order.orderstatuschange_set.filter(date__gt=self.date).order_by('date')[0].previous_status
-		except IndexError:
-			return self.order.status
+    def new_status(self):
+        try:
+            return self.order.orderstatuschange_set.filter(date__gt=self.date).order_by('date')[0].previous_status
+        except IndexError:
+            return self.order.status
 
-	def get_new_status_display(self):
-		s=self.new_status()
-		disps=dict(get_status_options()+[('-', '-')])
-		return disps[s]
+    def get_new_status_display(self):
+        s=self.new_status()
+        disps=dict(get_status_options()+[('-', '-')])
+        return disps[s]
 
-	class Meta:
-		# Nowhere better for this to go
-		permissions = [('can_view_orders', 'Permission to view orders')]
+    class Meta:
+        # Nowhere better for this to go
+        permissions = [('can_view_orders', 'Permission to view orders')]
