@@ -10,7 +10,7 @@ def links(request):
 	that can be linked to in the admin models page."""
 	if 'model' not in request.GET:
 		# output a JSON serialisation of the model list
-		return HttpResponse('LinkDialog.updateModels({%s});' % (u',\n'.join([u"'%s': '%s'" % (mname, vname.replace(u"'", u"\\'")) for mname, vname in get_models()])).encode('utf8'), mimetype='application/javascript; charset=UTF-8')
+		return HttpResponse('LinkDialog.updateModels({%s});' % (u',\n'.join([u"'%s': '%s'" % (mname, vname.replace(u"'", u"\\'")) for mname, vname in get_models()])).encode('utf8'), content_type='application/javascript; charset=UTF-8')
 	else:
 		try:
 			model, queryset = get_model(request.GET['model'])
@@ -20,4 +20,4 @@ def links(request):
 		links = [(i.pk, unicode(i)) for i in queryset]
 		return HttpResponse('LinkDialog.updateInstances({%s})' %
 			(u',\n'.join([u"%d: '%s'" % (pk, title.replace("'", "\\'")) for pk, title in links])).encode('utf8'),
-			mimetype='application/javascript; charset=UTF=8')
+			content_type='application/javascript; charset=UTF=8')

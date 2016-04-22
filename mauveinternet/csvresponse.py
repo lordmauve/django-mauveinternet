@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 class CSVResponse(HttpResponse):
 	def __init__(self, filename):
-		super(CSVResponse, self).__init__(mimetype='text/csv; charset=UTF-8')
+		super(CSVResponse, self).__init__(content_type='text/csv; charset=UTF-8')
 		self['Content-Disposition'] = 'attachment; filename="%s"' % filename.replace('"', r'\"')
 		self.spreadsheet = csv.writer(self)
 
