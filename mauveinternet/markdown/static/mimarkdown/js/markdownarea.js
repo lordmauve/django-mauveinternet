@@ -1,5 +1,5 @@
 Event.observe(document, 'dom:loaded', function () {
-	
+
 	$$('textarea.markdown').each(function (t) {
 		var outer = new Element('div', {'class': 'markdown_container'});
 		t.insert({before: outer});
@@ -17,18 +17,18 @@ Event.observe(document, 'dom:loaded', function () {
 			preview.hide();
 
 		var area = new Control.TextArea(t);
-		var toolbar = new Control.TextArea.ToolBar(area);  
+		var toolbar = new Control.TextArea.ToolBar(area);
 		toolbar.container.className = 'markdown_toolbar';
 		toolbar.container.setStyle({width: (t.offsetWidth - 6) + 'px'});
 		t.setStyle({borderTop: 'none'});
 
-		update_preview = function(value){  
+		update_preview = function(value){
 			var start = area.getSelectionStart();
 			var src = area.getValue();
 
 			// Markdown doesn't do anything special with @, which is why this approach works
 			src = src.substr(0, start) + '@@EDITINGCARET@@' + src.substr(start);
-			var html = converter.makeHtml(src).replace(/@@EDITINGCARET@@/, '<img src="/assets/images/markdown/caret.gif" alt="" class="caret" />');
+			var html = converter.makeHtml(src).replace(/@@EDITINGCARET@@/, '<span class="caret"></span>');
 			preview.update(html);
 			var sel = preview.select('.caret')[0];
 			if (sel)
@@ -37,93 +37,93 @@ Event.observe(document, 'dom:loaded', function () {
 			}
 		};
 
-		//preview of markdown text  
+		//preview of markdown text
 		new Form.Element.Observer(t, 0.3, update_preview);
-		//area.observe('change', update_preview); 
-		Event.observe(area.element, 'click', update_preview); 
+		//area.observe('change', update_preview);
+		Event.observe(area.element, 'click', update_preview);
 		Event.observe(area.element, 'keypress', function (ev) {
 			if (ev.keyCode == 13 && (ev.ctrlKey || ev.metaKey)) {
 				area.replaceSelection('  \n');
 				Event.stop(ev);
 			}
-		}.bindAsEventListener(area.element)); 
-		toolbar.addButton('Bold',function(){  
-			this.wrapSelection('**','**');  
-		},{  
+		}.bindAsEventListener(area.element));
+		toolbar.addButton('Bold',function(){
+			this.wrapSelection('**','**');
+		},{
 			className: 'markdown_bold_button',
 			title: 'Bold'
-		});  
+		});
 
-		//buttons  
-		toolbar.addButton('Italics',function(){  
-			this.wrapSelection('*','*');  
-		},{  
+		//buttons
+		toolbar.addButton('Italics',function(){
+			this.wrapSelection('*','*');
+		},{
 			className: 'markdown_italic_button',
-			title: 'Italic'  
-		});  
-		  
+			title: 'Italic'
+		});
+
 		toolbar.addButton('Link',function(){
 			LinkDialog.init(area);
 			return;
-			var selection = this.getSelection();  
-			var response = prompt('Enter Link URL','');  
-			if(response == null)  
-				return;  
-			this.replaceSelection('[' + (selection == '' ? 'Link Text' : selection) + '](' + (response == '' ? 'http://link_url/' : response).replace(/^(?!(f|ht)tps?:\/\/)/,'http://') + ')');  
-		},{  
+			var selection = this.getSelection();
+			var response = prompt('Enter Link URL','');
+			if(response == null)
+				return;
+			this.replaceSelection('[' + (selection == '' ? 'Link Text' : selection) + '](' + (response == '' ? 'http://link_url/' : response).replace(/^(?!(f|ht)tps?:\/\/)/,'http://') + ')');
+		},{
 			className: 'markdown_link_button',
 			title: 'Insert Link'
-		});  
-		  
-//		toolbar.addButton('Image',function(){  
-//			var selection = this.getSelection();  
-//			var response = prompt('Enter Image URL','');  
-//			if(response == null)  
-//				return;  
-//			this.replaceSelection('![' + (selection == '' ? 'Image Alt Text' : selection) + '](' + (response == '' ? 'http://image_url/' : response).replace(/^(?!(f|ht)tps?:\/\/)/,'http://') + ')');  
-//		},{  
+		});
+
+//		toolbar.addButton('Image',function(){
+//			var selection = this.getSelection();
+//			var response = prompt('Enter Image URL','');
+//			if(response == null)
+//				return;
+//			this.replaceSelection('![' + (selection == '' ? 'Image Alt Text' : selection) + '](' + (response == '' ? 'http://image_url/' : response).replace(/^(?!(f|ht)tps?:\/\/)/,'http://') + ')');
+//		},{
 //			className: 'markdown_image_button',
 //			title: 'Insert Image'
-//		});  
-		  
-		toolbar.addButton('Heading',function(){  
-			var selection = this.getSelection();  
-			this.replaceSelection("\n" + selection + "\n" + $R(0, Math.min(10, selection.length)).collect(function(){return '-';}).join('') + "\n");  
-		},{  
+//		});
+
+		toolbar.addButton('Heading',function(){
+			var selection = this.getSelection();
+			this.replaceSelection("\n" + selection + "\n" + $R(0, Math.min(10, selection.length)).collect(function(){return '-';}).join('') + "\n");
+		},{
 			className: 'markdown_heading_button',
-			title: 'Heading'  
-		});  
-		  
-		toolbar.addButton('Unordered List',function(event){  
+			title: 'Heading'
+		});
+
+		toolbar.addButton('Unordered List',function(event){
 			if (this.getSelection().match(/^\*\s/m)) {
-				this.collectFromEachSelectedLine(function(line){  
-					return line.replace(/^\*\s+/, '');
-				});  
-			} else {
-				this.collectFromEachSelectedLine(function(line){  
-					return line.replace(/^(\*\s+)?/, '* ');
-				});  
-			}
-		},{  
-			className: 'markdown_unordered_list_button',
-			title: 'Unordered List' 
-		});  
-		  
-		toolbar.addButton('Ordered List',function(event){  
-			if (this.getSelection().match(/^\d+\.\s/m)) {
-				this.collectFromEachSelectedLine(function(line){  
-					return line.replace(/^\d+\.\s+/, '');
-				}); 
-			}
-			else {
-				var i = 0;  
-			
 				this.collectFromEachSelectedLine(function(line){
-					return line.replace(/^(\d+\.\s+)?/, ++i + '. '); 
+					return line.replace(/^\*\s+/, '');
+				});
+			} else {
+				this.collectFromEachSelectedLine(function(line){
+					return line.replace(/^(\*\s+)?/, '* ');
 				});
 			}
-		},{  
-			className: 'markdown_ordered_list_button', 
+		},{
+			className: 'markdown_unordered_list_button',
+			title: 'Unordered List'
+		});
+
+		toolbar.addButton('Ordered List',function(event){
+			if (this.getSelection().match(/^\d+\.\s/m)) {
+				this.collectFromEachSelectedLine(function(line){
+					return line.replace(/^\d+\.\s+/, '');
+				});
+			}
+			else {
+				var i = 0;
+
+				this.collectFromEachSelectedLine(function(line){
+					return line.replace(/^(\d+\.\s+)?/, ++i + '. ');
+				});
+			}
+		},{
+			className: 'markdown_ordered_list_button',
 			title: 'Ordered List'
 		});
 
@@ -133,22 +133,22 @@ Event.observe(document, 'dom:loaded', function () {
 			document.cookie = 'show_preview=' + ((preview.visible()) ? 'true' : 'false') + ';max-age=' + (60*60*24*365);
 		} , {
 			className: 'markdown_toggle_preview'
-		}); 
+		});
 
 		toolbar.addButton('Help', function () {
 			window.open('http://daringfireball.net/projects/markdown/syntax');
 		} , {
 			className: 'markdown_help_button',
 			title: 'Help'
-		}); 
-		  
-//		toolbar.addButton('Block Quote',function(event){  
-//			this.collectFromEachSelectedLine(function(line){  
-//				return event.shiftKey ? line.replace(/^\> /,'') : '> ' + line;  
-//			});  
-//		},{  
-//			className: 'markdown_quote_button'  
-//		});  
+		});
+
+//		toolbar.addButton('Block Quote',function(event){
+//			this.collectFromEachSelectedLine(function(line){
+//				return event.shiftKey ? line.replace(/^\> /,'') : '> ' + line;
+//			});
+//		},{
+//			className: 'markdown_quote_button'
+//		});
 	});
 });
 
@@ -191,8 +191,8 @@ var LinkDialog = {
 	},
 
 	insert: function (link, name) {
-		var selection = LinkDialog.textarea.getSelection();  
-		LinkDialog.textarea.replaceSelection('[' + (selection == '' ? ((name) ? name : link) : selection) + '](' + link.replace(/^(?![a-z-]+:)/, 'http://') + ')');  
+		var selection = LinkDialog.textarea.getSelection();
+		LinkDialog.textarea.replaceSelection('[' + (selection == '' ? ((name) ? name : link) : selection) + '](' + link.replace(/^(?![a-z-]+:)/, 'http://') + ')');
 	},
 
 	close: function () {

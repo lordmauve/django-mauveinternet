@@ -24,6 +24,7 @@ from django.conf import settings
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from django.core.files.base import ContentFile
+from django.utils.deconstruct import deconstructible
 
 
 from PIL import Image, ImageOps, ImageDraw, ImageColor
@@ -143,6 +144,7 @@ class ThumbnailImageField(ImageField):
         return name, path, args, kwargs
 
 
+@deconstructible
 class Thumbnail(object):
     """The default thumbnailer, and the base class of other thumbnailers.
 
@@ -179,6 +181,7 @@ class Thumbnail(object):
         return im
 
 
+@deconstructible
 class ZoomToFitThumbnail(Thumbnail):
     """Generates thumbnails at the exact dimensions given, with no border.
     The image is zoomed so as to fit outside the given dimensions, then the
@@ -214,6 +217,7 @@ class ZoomToFitThumbnail(Thumbnail):
         return sized.crop(crop_rect)
 
 
+@deconstructible
 class ZoomingThumbnail(Thumbnail):
     """Generates thumbnails at a given size, but zoomed in
     by a certain factor on the middle of the source image.
@@ -238,6 +242,7 @@ class ZoomingThumbnail(Thumbnail):
         )
 
 
+@deconstructible
 class RoundedThumbnail(Thumbnail):
     """Generates thumbnails with rounded corners."""
     def __init__(self, radius=10, w=None, h=None):
@@ -296,6 +301,7 @@ class RoundedThumbnail(Thumbnail):
         return buf
 
 
+@deconstructible
 class WatermarkedThumbnail(Thumbnail):
     def __init__(self, watermark, w=None, h=None):
         super(WatermarkedThumbnail, self).__init__(w, h)
@@ -311,6 +317,7 @@ class WatermarkedThumbnail(Thumbnail):
         return im
 
 
+@deconstructible
 class BackgroundColour(Thumbnail):
     def __init__(self, colour='#fff'):
         self.col = ImageColor.getrgb(colour)
@@ -324,6 +331,7 @@ class BackgroundColour(Thumbnail):
         return background
 
 
+@deconstructible
 class ThumbnailStack(Thumbnail):
     def __init__(self, *args):
         self.stack = args

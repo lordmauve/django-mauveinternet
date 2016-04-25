@@ -23,18 +23,28 @@ class MarkdownTextField(TextField):
 
     def formfield(self, **kwargs):
         defaults = {
-                'widget': MarkdownTextarea
+            'widget': MarkdownTextarea
         }
         defaults.update(kwargs)
         return super(MarkdownTextField, self).formfield(**defaults)
+
 
 class MarkdownTextarea(forms.Textarea):
     """A textarea widget that adds Javascript toolbars and previews for editing
     Markdown code"""
     class Media:
-        css = {'all': ['css/markdown/markdownarea.css']}
+        css = {
+            'all': [
+                'mimarkdown/css/markdownarea.css'
+            ]
+        }
         # Also requires 'js/lib/prototype.js', but adding this here will typically include it twice
-        js = ['js/markdown/livepipe/livepipe.js', 'js/markdown/livepipe/textarea.js', 'js/markdown/showdown.js', 'js/markdown/markdownarea.js']
+        js = [
+            'mimarkdown/js/livepipe/livepipe.js',
+            'mimarkdown/js/livepipe/textarea.js',
+            'mimarkdown/js/showdown.js',
+            'mimarkdown/js/markdownarea.js'
+        ]
 
     def __init__(self, attrs={}):
         super(MarkdownTextarea, self).__init__(attrs)

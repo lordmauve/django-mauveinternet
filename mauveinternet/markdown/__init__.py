@@ -1,5 +1,5 @@
 import django.db.models
-from util import MarkdownTextarea # for compatibility
+from .util import MarkdownTextarea # for compatibility
 
 from django.utils.text import capfirst
 

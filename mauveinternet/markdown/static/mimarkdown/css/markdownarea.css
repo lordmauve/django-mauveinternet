@@ -15,7 +15,7 @@ textarea.markdown {
 
 .markdown_container textarea.markdown {
 	margin-left: 0;
-} 
+}
 
 form ul.markdown_toolbar {
 	padding: 3px;
@@ -58,31 +58,31 @@ ul.markdown_toolbar li a:hover {
 }
 
 .markdown_bold_button {
-	background-image: url('../../icons/markdown/bold.png');
+	background-image: url('../icons/bold.png');
 }
 
 .markdown_italic_button {
-	background-image: url('../../icons/markdown/italic.png');
+	background-image: url('../icons/italic.png');
 }
 
 .markdown_heading_button {
-	background-image: url('../../icons/markdown/heading.png');
+	background-image: url('../icons/heading.png');
 }
 
 .markdown_unordered_list_button {
-	background-image: url('../../icons/markdown/unordered-list.png');
+	background-image: url('../icons/unordered-list.png');
 }
 
 .markdown_ordered_list_button {
-	background-image: url('../../icons/markdown/ordered-list.png');
+	background-image: url('../icons/ordered-list.png');
 }
 
 .markdown_link_button {
-	background-image: url('../../icons/markdown/link.png');
+	background-image: url('../icons/link.png');
 }
 
 .markdown_help_button {
-	background-image: url('../../icons/markdown/help.png');
+	background-image: url('../icons/help.png');
 	position: absolute;
 	right: 3px;
 	top: 3px;
@@ -94,7 +94,7 @@ ul.markdown_toolbar li a:hover {
 	padding: 2px 4px;
 	height: 14px;
 	position: absolute;
-	top: 3px;	
+	top: 3px;
 	right: 24px;
 }
 
@@ -124,8 +124,12 @@ form .markdown_preview ol {
 }
 
 .markdown_preview .caret {
-	margin-right: -1px;
-	vertical-align: -1px;
+    margin-right: -1px;
+    vertical-align: -1px;
+    background: url('../images/caret.gif') no-repeat top left;
+    width: 1px;
+    height: 11px;
+    display: inline-block;
 }
 
 #link-dialog {

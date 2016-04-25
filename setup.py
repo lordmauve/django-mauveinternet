@@ -9,5 +9,8 @@ setup(
     author_email='dan@mauveinternet.co.uk',
     url='http://pypi.python.org/pypi/django-mauveinternet',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        'Pillow>=2.3,<2.4',
+        'Markdown>=2.6,<2.7'
+    ],
 )
