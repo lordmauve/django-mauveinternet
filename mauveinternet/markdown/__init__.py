@@ -3,7 +3,9 @@ from .util import MarkdownTextarea # for compatibility
 
 from django.utils.text import capfirst
 
+# Global dict of configured linkable objects
 _link_providers = {}
+
 
 def register_linkable(model_or_queryset):
     try:
@@ -18,9 +20,11 @@ def register_linkable(model_or_queryset):
     model = queryset.model
     _link_providers[model] = queryset
 
+
 def get_models():
-    """Returns a list of linkable ('appname.Model', 'Verbose name') pairs"""
+    """Return a list of linkable ('appname.Model', 'Verbose name') pairs."""
     return [('%s.%s' % (m._meta.app_label, m._meta.object_name), capfirst(m._meta.verbose_name)) for m in _link_providers]
+
 
 def get_model(mname):
     """Return a linkable model for the given 'appname.Model' string"""

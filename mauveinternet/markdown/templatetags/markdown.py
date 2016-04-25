@@ -1,12 +1,14 @@
+from __future__ import absolute_import
 from django.apps import apps
 from django.conf import settings
 from django import template
 from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
 
-from mauveinternet.markdown import _link_providers
+from .. import _link_providers
 
 register = template.Library()
+
 
 def lookup_link(internal_link):
     import re
@@ -35,7 +37,7 @@ def markdown(value, arg=''):
     earlier versions have bugs with Unicode support).
     """
     import re
-    from mauveinternet.markdown import markdown
+    import markdown
 
     extensions = set([e for e in arg.split(",") if e])
     if 'safe' in extensions:
@@ -49,7 +51,7 @@ def markdown(value, arg=''):
         min_h = 2
     if 'minh=1' in extensions:
         min_h = 1
-    html = markdown.markdown(force_unicode(value), extensions, safe_mode=safe_mode)
+    html = markdown.markdown(force_unicode(value), safe_mode=safe_mode)
     if min_h > 1:
         html = re.sub(r'<(/?)h([1-6])(\s.*?)?>', lambda mo: '<%sh%d%s>' % (mo.group(1), min(6, int(mo.group(2)) + min_h - 1), mo.group(3) or ''), html)
     html = re.sub(r'(<a\s+[^>]*)href="(internal:.*?)"', lambda mo: '%shref="%s"' % (mo.group(1), lookup_link(mo.group(2))), html)
