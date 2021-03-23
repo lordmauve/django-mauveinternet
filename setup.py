@@ -17,7 +17,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     install_requires=[
-        'Pillow>=2.3,<2.4',
+        'Pillow>=8.1.1',
         'Markdown>=2.6,<2.7'
     ],
 )
